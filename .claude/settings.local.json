@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C \"/c/Users/arbel/workspace/matchazo\" log --oneline -5)",
+      "Bash(composer create-project *)",
+      "Bash(cp C:/Users/arbel/workspace/matchazo/CLAUDE.md C:/Users/arbel/Herd/app-salon/CLAUDE.md)",
+      "Bash(cp C:/Users/arbel/workspace/matchazo/TAKS.md C:/Users/arbel/Herd/app-salon/TAKS.md)",
+      "Bash(cp C:/Users/arbel/workspace/matchazo/skills-lock.json C:/Users/arbel/Herd/app-salon/skills-lock.json)",
+      "Bash(xargs grep *)",
+      "Bash(xargs cat *)",
+      "Bash(docker compose *)"
+    ]
+  }
+}
