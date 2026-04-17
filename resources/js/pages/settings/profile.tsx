@@ -41,22 +41,31 @@ export default function Profile({
                     {({ processing, errors }) => (
                         <>
                             <div className="grid gap-2">
-                                <Label htmlFor="name">Name</Label>
-
+                                <Label htmlFor="nombre">Nombre</Label>
                                 <Input
-                                    id="name"
+                                    id="nombre"
                                     className="mt-1 block w-full"
-                                    defaultValue={auth.user.name}
-                                    name="name"
+                                    defaultValue={auth.user.nombre}
+                                    name="nombre"
                                     required
-                                    autoComplete="name"
-                                    placeholder="Full name"
+                                    autoComplete="given-name"
+                                    placeholder="Nombre"
                                 />
+                                <InputError className="mt-2" message={errors.nombre} />
+                            </div>
 
-                                <InputError
-                                    className="mt-2"
-                                    message={errors.name}
+                            <div className="grid gap-2">
+                                <Label htmlFor="apellido">Apellido</Label>
+                                <Input
+                                    id="apellido"
+                                    className="mt-1 block w-full"
+                                    defaultValue={auth.user.apellido}
+                                    name="apellido"
+                                    required
+                                    autoComplete="family-name"
+                                    placeholder="Apellido"
                                 />
+                                <InputError className="mt-2" message={errors.apellido} />
                             </div>
 
                             <div className="grid gap-2">
@@ -79,8 +88,7 @@ export default function Profile({
                                 />
                             </div>
 
-                            {mustVerifyEmail &&
-                                auth.user.email_verified_at === null && (
+                            {mustVerifyEmail && (
                                     <div>
                                         <p className="-mt-4 text-sm text-muted-foreground">
                                             Your email address is unverified.{' '}
