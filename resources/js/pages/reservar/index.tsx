@@ -44,15 +44,8 @@ export default function ReservarIndex({ servicios, ocupados }: Props) {
     });
 
     function handleDaySelect(day: Date | undefined) {
-        console.log('[index.tsx] day: ', day); // TODO: Remove
-        console.log('[index.tsx] BEFORE handleDaySelect (fecha): ', data.fecha); // TODO: Remove
-        console.log('[index.tsx] BEFORE handleDaySelect (hora): ', data.hora); // TODO: Remove
         setSelectedDate(day);
         setData('fecha', day ? toDateString(day) : '');
-        console.log('=========');
-        console.log('[index.tsx] selectedDate: ', selectedDate); // TODO: Remove
-        console.log('[index.tsx] AFTER handleDaySelect (fecha): ', data.fecha); // TODO: Remove
-        console.log('[index.tsx] AFTER handleDaySelect (hora): ', data.hora); // TODO: Remove
     }
 
     function toggleServicio(id: number) {
