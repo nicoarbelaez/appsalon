@@ -11,6 +11,16 @@ import {
 } from '@tanstack/react-table';
 import { ArrowUpDown, ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
 import { router } from '@inertiajs/react';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -31,6 +41,10 @@ import {
 } from '@/components/ui/table';
 import type { Servicio, ServiciosFilters } from '@/types/servicios';
 
+type DeleteTarget =
+    | { type: 'single'; servicio: Servicio }
+    | { type: 'bulk' };
+
 interface ServiciosTableProps {
     servicios: Servicio[];
     filters: ServiciosFilters;
@@ -41,6 +55,8 @@ export function ServiciosTable({ servicios, filters, onEdit }: ServiciosTablePro
     const [sorting, setSorting] = React.useState<SortingState>([{ id: 'nombre', desc: false }]);
     const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
     const [allSelected, setAllSelected] = React.useState(false);
+    const [deleteTarget, setDeleteTarget] = React.useState<DeleteTarget | null>(null);
+    const [bulkToggleTarget, setBulkToggleTarget] = React.useState<boolean | null>(null);
 
     React.useEffect(() => {
         setRowSelection({});
@@ -180,8 +196,7 @@ export function ServiciosTable({ servicios, filters, onEdit }: ServiciosTablePro
                                 className="text-red-600 focus:text-red-600"
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    if (!confirm(`¿Eliminar "${s.nombre}"?`)) return;
-                                    router.delete(`/admin/servicios/${s.id}`, { preserveScroll: true });
+                                    setDeleteTarget({ type: 'single', servicio: s });
                                 }}
                             >
                                 Eliminar
@@ -214,25 +229,39 @@ export function ServiciosTable({ servicios, filters, onEdit }: ServiciosTablePro
         table.getIsAllPageRowsSelected() && servicios.length > table.getRowModel().rows.length && !allSelected;
 
     function handleBulkToggle(activo: boolean) {
+        setBulkToggleTarget(activo);
+    }
+
+    function confirmBulkToggle() {
+        if (bulkToggleTarget === null) return;
         const body = allSelected
-            ? { selectAll: true, activo, search: filters.search, activo_filter: filters.activo }
-            : { ids: selectedIds, activo };
+            ? { selectAll: true, activo: bulkToggleTarget, search: filters.search, activo_filter: filters.activo }
+            : { ids: selectedIds, activo: bulkToggleTarget };
         router.post('/admin/servicios/bulk-toggle', body, {
             preserveScroll: true,
             onSuccess: () => { setRowSelection({}); setAllSelected(false); },
         });
+        setBulkToggleTarget(null);
     }
 
     function handleBulkDelete() {
-        const count = allSelected ? servicios.length : selectedIds.length;
-        if (!confirm(`¿Eliminar ${count} servicio(s) seleccionado(s)?`)) return;
-        const body = allSelected
-            ? { selectAll: true, search: filters.search, activo: filters.activo }
-            : { ids: selectedIds };
-        router.post('/admin/servicios/bulk-destroy', body, {
-            preserveScroll: true,
-            onSuccess: () => { setRowSelection({}); setAllSelected(false); },
-        });
+        setDeleteTarget({ type: 'bulk' });
+    }
+
+    function confirmDelete() {
+        if (!deleteTarget) return;
+        if (deleteTarget.type === 'single') {
+            router.delete(`/admin/servicios/${deleteTarget.servicio.id}`, { preserveScroll: true });
+        } else {
+            const body = allSelected
+                ? { selectAll: true, search: filters.search, activo: filters.activo }
+                : { ids: selectedIds };
+            router.post('/admin/servicios/bulk-destroy', body, {
+                preserveScroll: true,
+                onSuccess: () => { setRowSelection({}); setAllSelected(false); },
+            });
+        }
+        setDeleteTarget(null);
     }
 
     return (
@@ -343,6 +372,47 @@ export function ServiciosTable({ servicios, filters, onEdit }: ServiciosTablePro
                     </Button>
                 </div>
             </div>
+
+            {/* Bulk toggle confirmation */}
+            <AlertDialog open={bulkToggleTarget !== null} onOpenChange={(v) => { if (!v) setBulkToggleTarget(null); }}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>
+                            ¿{bulkToggleTarget ? 'Habilitar' : 'Deshabilitar'} servicios?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Se {bulkToggleTarget ? 'habilitarán' : 'deshabilitarán'}{' '}
+                            {allSelected ? servicios.length : selectedIds.length} servicio(s) seleccionado(s).
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction onClick={confirmBulkToggle}>
+                            {bulkToggleTarget ? 'Habilitar' : 'Deshabilitar'}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            {/* Delete confirmation */}
+            <AlertDialog open={deleteTarget !== null} onOpenChange={(v) => { if (!v) setDeleteTarget(null); }}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>¿Eliminar servicio(s)?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            {deleteTarget?.type === 'single'
+                                ? `Se eliminará "${deleteTarget.servicio.nombre}". Esta acción no se puede deshacer.`
+                                : `Se eliminarán ${allSelected ? servicios.length : selectedIds.length} servicio(s) seleccionado(s). Esta acción no se puede deshacer.`}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction variant="destructive" onClick={confirmDelete}>
+                            Eliminar
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }
