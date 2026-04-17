@@ -19,6 +19,7 @@ interface Servicio {
 
 interface Props {
     servicios: Servicio[];
+    ocupados: { fecha: string; hora: string }[];
 }
 
 const HORARIOS = [
@@ -41,7 +42,7 @@ function toDateString(date: Date): string {
     return `${yyyy}-${mm}-${dd}`;
 }
 
-export default function ReservarIndex({ servicios }: Props) {
+export default function ReservarIndex({ servicios, ocupados }: Props) {
     const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(undefined);
 
     const { data, setData, post, processing, errors } = useForm({
@@ -66,6 +67,21 @@ export default function ReservarIndex({ servicios }: Props) {
                 : [...data.servicios, id],
         );
     }
+
+    const isOcupado = (hora: string) => {
+        if (!data.fecha) return false;
+        return ocupados.some((o) => o.fecha === data.fecha && o.hora === hora);
+    };
+
+    const isPasado = (hora: string) => {
+        if (!selectedDate) return false;
+        const hoy = new Date();
+        if (toDateString(selectedDate) !== toDateString(hoy)) return false;
+        const [h, m] = hora.split(':');
+        const horaCita = new Date();
+        horaCita.setHours(parseInt(h), parseInt(m), 0, 0);
+        return horaCita < hoy;
+    };
 
     const serviciosSeleccionados = servicios.filter((s) => data.servicios.includes(s.id));
     const total = serviciosSeleccionados.reduce((acc, s) => acc + parseFloat(s.precio), 0);
@@ -252,21 +268,32 @@ export default function ReservarIndex({ servicios }: Props) {
                             <div className="flex flex-col gap-1.5">
                                 <Label>Hora *</Label>
                                 {errors.hora && <p className="text-xs text-red-500">{errors.hora}</p>}
+                                {!selectedDate && <p className="text-sm text-gray-400 italic">Selecciona una fecha primero para ver horarios</p>}
                                 <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
-                                    {HORARIOS.map((h) => (
-                                        <button
-                                            key={h}
-                                            type="button"
-                                            onClick={() => setData('hora', h)}
-                                            className={`rounded-md border py-2 text-xs font-medium transition-all ${
-                                                data.hora === h
-                                                    ? 'border-rose-500 bg-rose-600 text-white'
-                                                    : 'border-gray-100 hover:border-rose-300 dark:border-gray-800'
-                                            }`}
-                                        >
-                                            {formatHora(h)}
-                                        </button>
-                                    ))}
+                                    {HORARIOS.map((h) => {
+                                        const ocupado = isOcupado(h);
+                                        const pasado = isPasado(h);
+                                        const disabled = ocupado || pasado || !selectedDate;
+
+                                        return (
+                                            <button
+                                                key={h}
+                                                type="button"
+                                                disabled={disabled}
+                                                onClick={() => setData('hora', h)}
+                                                className={`rounded-md border py-2 text-xs font-medium transition-all ${
+                                                    data.hora === h
+                                                        ? 'border-rose-500 bg-rose-600 text-white'
+                                                        : disabled
+                                                        ? 'cursor-not-allowed border-gray-100 bg-gray-50 text-gray-300 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-600'
+                                                        : 'border-gray-100 hover:border-rose-300 dark:border-gray-800'
+                                                }`}
+                                                title={ocupado ? 'Ya ocupado' : pasado ? 'Hora pasada' : ''}
+                                            >
+                                                {formatHora(h)}
+                                            </button>
+                                        );
+                                    })}
                                 </div>
                             </div>
                         </CardContent>

@@ -12,8 +12,20 @@ class ReservaPublicaController extends Controller
 {
     public function create()
     {
+        $ocupados = Cita::where('fecha', '>=', now()->toDateString())
+            ->where('estado', '!=', 'cancelada')
+            ->select('fecha', 'hora')
+            ->get()
+            ->map(function ($cita) {
+                return [
+                    'fecha' => $cita->fecha,
+                    'hora' => substr($cita->hora, 0, 5), // '10:30'
+                ];
+            });
+
         return Inertia::render('reservar/index', [
             'servicios' => Servicio::where('activo', true)->orderBy('nombre')->get(),
+            'ocupados' => $ocupados,
         ]);
     }
 

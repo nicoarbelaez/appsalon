@@ -1,5 +1,6 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import { CalendarDays, CheckCircle2, Clock3, Plus } from 'lucide-react';
+import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -142,7 +143,7 @@ export default function Dashboard({ proximasCitas = [], stats }: Props) {
                                         navigator.share(shareData).catch(console.error);
                                     } else if (navigator.clipboard) {
                                         navigator.clipboard.writeText(url);
-                                        alert('Link copiado al portapapeles');
+                                        toast.success('Link copiado al portapapeles');
                                     } else {
                                         // Fallback for non-secure contexts
                                         const textArea = document.createElement("textarea");
@@ -151,9 +152,9 @@ export default function Dashboard({ proximasCitas = [], stats }: Props) {
                                         textArea.select();
                                         try {
                                             document.execCommand('copy');
-                                            alert('Link copiado al portapapeles');
+                                            toast.success('Link copiado al portapapeles');
                                         } catch (err) {
-                                            alert('No se pudo copiar el link. Por favor, cópialo manualmente: ' + url);
+                                            toast.error('No se pudo copiar el link. Por favor, cópialo manualmente: ' + url);
                                         }
                                         document.body.removeChild(textArea);
                                     }

@@ -1,5 +1,8 @@
 import * as React from 'react';
 import { Head } from '@inertiajs/react';
+import { format, parseISO } from 'date-fns';
+import { es } from 'date-fns/locale';
+import { toast } from 'sonner';
 import { CalendarDays, CheckCircle2, Clock, MessageCircle, Scissors, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -51,23 +54,40 @@ const estadoConfig: Record<string, { label: string; color: string; icon: React.R
 };
 
 function formatFecha(fecha: string) {
-    return new Date(fecha + 'T00:00:00').toLocaleDateString('es-CO', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-    });
+    try {
+        return format(parseISO(fecha), "eeee, d 'de' MMMM 'de' yyyy", { locale: es });
+    } catch (e) {
+        return fecha;
+    }
 }
 
 function formatHora(hora: string) {
-    const [h, m] = hora.split(':');
-    const d = new Date();
-    d.setHours(parseInt(h), parseInt(m));
-    return d.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+    try {
+        const [h, m] = hora.split(':');
+        return `${h}:${m}`;
+    } catch (e) {
+        return hora;
+    }
 }
 
 export default function ReservarEstado({ cita, token }: Props) {
     const config = estadoConfig[cita.estado] ?? estadoConfig.pendiente;
+    const statusUrl = typeof window !== 'undefined' ? `${window.location.origin}/reservar/estado/${token}` : '';
+
+    function copyStatusLink() {
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(statusUrl);
+            toast.success('Link de estado copiado');
+        } else {
+            const textArea = document.createElement("textarea");
+            textArea.value = statusUrl;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            toast.success('Link de estado copiado');
+        }
+    }
 
     function compartirWhatsApp() {
         const serviciosList = cita.servicios.map((s) => `• ${s.nombre}`).join('\n');
@@ -126,11 +146,19 @@ export default function ReservarEstado({ cita, token }: Props) {
                         <p className="font-mono text-sm font-bold text-rose-700 break-all dark:text-rose-400">
                             {token}
                         </p>
-                        <p className="mt-1 text-xs text-gray-500">
-                            Visita{' '}
-                            <span className="font-medium text-rose-600">/reservar/estado/{token}</span>{' '}
-                            para ver el estado
-                        </p>
+                        <div className="mt-3 flex flex-col items-center gap-2">
+                             <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="h-auto py-1.5 text-rose-600 hover:text-rose-700 hover:bg-rose-100/50"
+                                onClick={copyStatusLink}
+                            >
+                                <span className="text-xs">Copiar link de seguimiento</span>
+                            </Button>
+                            <p className="text-[10px] text-gray-500 max-w-[200px] truncate">
+                                {statusUrl}
+                            </p>
+                        </div>
                     </CardContent>
                 </Card>
 
