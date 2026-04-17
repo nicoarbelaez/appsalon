@@ -24,8 +24,20 @@ class CitaController extends Controller
 
     public function create()
     {
+        $ocupados = Cita::where('fecha', '>=', now()->toDateString())
+            ->where('estado', '!=', 'cancelada')
+            ->select('fecha', 'hora')
+            ->get()
+            ->map(function ($cita) {
+                return [
+                    'fecha' => $cita->fecha,
+                    'hora' => substr($cita->hora, 0, 5),
+                ];
+            });
+
         return Inertia::render('citas/create', [
             'servicios' => Servicio::where('activo', true)->orderBy('nombre')->get(),
+            'ocupados' => $ocupados,
         ]);
     }
 
@@ -39,7 +51,7 @@ class CitaController extends Controller
         ]);
 
         $ocupado = Cita::where('fecha', $validated['fecha'])
-            ->where('hora', $validated['hora'].':00')
+            ->where('hora', $validated['hora'] . ':00')
             ->where('estado', '!=', 'cancelada')
             ->exists();
 
@@ -53,7 +65,7 @@ class CitaController extends Controller
 
         $cita = Cita::create([
             'fecha' => $validated['fecha'],
-            'hora' => $validated['hora'].':00',
+            'hora' => $validated['hora'] . ':00',
             'usuarioId' => auth()->id(),
             'total' => $total,
             'estado' => 'pendiente',

@@ -2,9 +2,16 @@ import * as React from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import { Scissors } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 import { ServiceSelector } from '@/components/booking/service-selector';
 import { DateTimePicker } from '@/components/booking/date-time-picker';
 
@@ -160,21 +167,45 @@ export default function ReservarIndex({ servicios, ocupados }: Props) {
                         </CardContent>
                     </Card>
 
-                    <ServiceSelector
-                        servicios={servicios}
-                        selectedIds={data.servicios}
-                        onToggle={toggleServicio}
-                        error={errors.servicios}
-                    />
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-base">
+                                2. Selecciona servicios
+                            </CardTitle>
+                            <CardDescription>
+                                Puedes elegir uno o más servicios.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <ServiceSelector
+                                servicios={servicios}
+                                selectedIds={data.servicios}
+                                onToggle={toggleServicio}
+                                error={errors.servicios}
+                            />
+                        </CardContent>
+                    </Card>
 
-                    <DateTimePicker
-                        selectedDate={selectedDate}
-                        selectedTime={data.hora}
-                        ocupados={ocupados}
-                        onDateSelect={handleDaySelect}
-                        onTimeSelect={(h) => setData('hora', h)}
-                        errors={{ fecha: errors.fecha, hora: errors.hora }}
-                    />
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-base">
+                                3. Elige fecha y hora
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <DateTimePicker
+                                selectedDate={selectedDate}
+                                selectedTime={data.hora}
+                                ocupados={ocupados}
+                                onDateSelect={handleDaySelect}
+                                onTimeSelect={(h) => setData('hora', h)}
+                                errors={{
+                                    fecha: errors.fecha,
+                                    hora: errors.hora,
+                                }}
+                            />
+                        </CardContent>
+                    </Card>
 
                     <Button
                         type="submit"
