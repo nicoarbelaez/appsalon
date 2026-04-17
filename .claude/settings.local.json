@@ -9,7 +9,14 @@
       "Bash(xargs grep *)",
       "Bash(xargs cat *)",
       "Bash(docker compose *)",
-      "Bash(php artisan *)"
+      "Bash(php artisan *)",
+      "Bash(git *)",
+      "Bash(npm install *)",
+      "Bash(npx tsc *)",
+      "Bash(npm list *)",
+      "Bash(composer require *)",
+      "Bash(powershell -Command \"Remove-Item 'C:\\\\Users\\\\arbel\\\\Herd\\\\app-salon\\\\resources\\\\js\\\\components\\\\citas\\\\import-dialog.tsx','C:\\\\Users\\\\arbel\\\\Herd\\\\app-salon\\\\resources\\\\js\\\\components\\\\servicios\\\\import-dialog.tsx'\")",
+      "Bash(powershell *)"
     ]
   }
 }
