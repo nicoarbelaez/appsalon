@@ -16,6 +16,28 @@ class UsuarioController extends Controller
         ]);
     }
 
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'apellido' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:usuarios',
+            'rol' => 'required|in:cliente,funcionario,admin',
+            'password' => 'required|string|min:8',
+        ]);
+
+        User::create([
+            ...$validated,
+            'password' => $validated['password'],
+            'admin' => $validated['rol'] === 'admin',
+            'confirmado' => true,
+            'requiere_cambio_password' => true,
+        ]);
+
+        return redirect()->route('admin.usuarios.index')
+            ->with('success', 'Usuario creado correctamente.');
+    }
+
     public function edit(User $usuario)
     {
         return Inertia::render('admin/usuarios/edit', [

@@ -31,7 +31,7 @@ Route::middleware(['auth', 'funcionario'])->prefix('funcionario')->name('funcion
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::resource('/servicios', AdminServicioController::class);
-    Route::resource('/usuarios', AdminUsuarioController::class)->only(['index', 'edit', 'update', 'destroy']);
+    Route::resource('/usuarios', AdminUsuarioController::class)->only(['index', 'store', 'edit', 'update', 'destroy']);
 });
 
 require __DIR__ . '/settings.php';

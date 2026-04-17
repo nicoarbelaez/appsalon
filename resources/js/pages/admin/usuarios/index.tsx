@@ -1,8 +1,21 @@
-import { Head, Link, router } from '@inertiajs/react';
-import { Edit, Trash2, UserCheck, UserX } from 'lucide-react';
+import { useForm, Head, Link, router } from '@inertiajs/react';
+import { Edit, Plus, Trash2, UserCheck, UserX } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useState } from 'react';
 
 interface Usuario {
     id: number;
@@ -26,9 +39,28 @@ const rolConfig: Record<string, { label: string; className: string }> = {
 };
 
 export default function AdminUsuariosIndex({ usuarios }: Props) {
+    const [isCreateOpen, setIsCreateOpen] = useState(false);
+    const { data, setData, post, processing, errors, reset } = useForm({
+        nombre: '',
+        apellido: '',
+        email: '',
+        rol: 'cliente',
+        password: '',
+    });
+
     function handleDelete(id: number, nombre: string) {
         if (!confirm(`¿Eliminar usuario "${nombre}"? Esta acción no se puede deshacer.`)) return;
         router.delete(`/admin/usuarios/${id}`);
+    }
+
+    function handleCreate(e: React.FormEvent) {
+        e.preventDefault();
+        post('/admin/usuarios', {
+            onSuccess: () => {
+                setIsCreateOpen(false);
+                reset();
+            },
+        });
     }
 
     return (
@@ -43,6 +75,91 @@ export default function AdminUsuariosIndex({ usuarios }: Props) {
                         </h1>
                         <p className="text-sm text-gray-500">{usuarios.length} usuario(s) registrado(s)</p>
                     </div>
+
+                    <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+                        <DialogTrigger asChild>
+                            <Button>
+                                <Plus className="mr-2 h-4 w-4" />
+                                Nuevo usuario
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <form onSubmit={handleCreate}>
+                                <DialogHeader>
+                                    <DialogTitle>Crear nuevo usuario</DialogTitle>
+                                    <DialogDescription>
+                                        Ingresa los detalles del nuevo usuario. Se le pedirá cambiar la contraseña en su primer inicio de sesión.
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <div className="grid gap-4 py-4">
+                                    <div className="grid items-center gap-2">
+                                        <Label htmlFor="nombre">Nombre</Label>
+                                        <Input
+                                            id="nombre"
+                                            value={data.nombre}
+                                            onChange={(e) => setData('nombre', e.target.value)}
+                                            required
+                                        />
+                                        {errors.nombre && <p className="text-xs text-red-500">{errors.nombre}</p>}
+                                    </div>
+                                    <div className="grid items-center gap-2">
+                                        <Label htmlFor="apellido">Apellido</Label>
+                                        <Input
+                                            id="apellido"
+                                            value={data.apellido}
+                                            onChange={(e) => setData('apellido', e.target.value)}
+                                            required
+                                        />
+                                        {errors.apellido && <p className="text-xs text-red-500">{errors.apellido}</p>}
+                                    </div>
+                                    <div className="grid items-center gap-2">
+                                        <Label htmlFor="email">Email</Label>
+                                        <Input
+                                            id="email"
+                                            type="email"
+                                            value={data.email}
+                                            onChange={(e) => setData('email', e.target.value)}
+                                            required
+                                        />
+                                        {errors.email && <p className="text-xs text-red-500">{errors.email}</p>}
+                                    </div>
+                                    <div className="grid items-center gap-2">
+                                        <Label htmlFor="rol">Rol</Label>
+                                        <Select
+                                            value={data.rol}
+                                            onValueChange={(value: any) => setData('rol', value)}
+                                        >
+                                            <SelectTrigger id="rol">
+                                                <SelectValue placeholder="Selecciona un rol" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="cliente">Cliente</SelectItem>
+                                                <SelectItem value="funcionario">Funcionario</SelectItem>
+                                                <SelectItem value="admin">Administrador</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        {errors.rol && <p className="text-xs text-red-500">{errors.rol}</p>}
+                                    </div>
+                                    <div className="grid items-center gap-2">
+                                        <Label htmlFor="password">Contraseña temporal</Label>
+                                        <Input
+                                            id="password"
+                                            type="password"
+                                            value={data.password}
+                                            onChange={(e) => setData('password', e.target.value)}
+                                            required
+                                        />
+                                        {errors.password && <p className="text-xs text-red-500">{errors.password}</p>}
+                                    </div>
+                                </div>
+                                <DialogFooter>
+                                    <Button type="submit" disabled={processing}>
+                                        Crear usuario
+                                    </Button>
+                                </DialogFooter>
+                            </form>
+                        </DialogContent>
+                    </Dialog>
                 </div>
 
                 <Card>
