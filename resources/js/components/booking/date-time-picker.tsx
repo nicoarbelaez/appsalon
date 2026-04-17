@@ -27,37 +27,20 @@ interface DateTimePickerProps {
         fecha?: string;
         hora?: string;
     };
+    preserveState?: boolean;
 }
 
 const HORARIOS = [
-    '09:00',
-    '09:30',
-    '10:00',
-    '10:30',
-    '11:00',
-    '11:30',
-    '12:00',
-    '12:30',
-    '13:00',
-    '13:30',
-    '14:00',
-    '14:30',
-    '15:00',
-    '15:30',
-    '16:00',
-    '16:30',
-    '17:00',
-    '17:30',
+    '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+    '12:00', '12:30', '13:00', '13:30', '14:00', '14:30',
+    '15:00', '15:30', '16:00', '16:30', '17:00', '17:30',
 ];
 
 function formatTime(hora: string) {
     const [h, m] = hora.split(':');
     const d = new Date();
     d.setHours(parseInt(h), parseInt(m));
-    return d.toLocaleTimeString('es-CO', {
-        hour: '2-digit',
-        minute: '2-digit',
-    });
+    return d.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
 }
 
 export function DateTimePicker({
@@ -67,29 +50,26 @@ export function DateTimePicker({
     onDateSelect,
     onTimeSelect,
     errors,
+    preserveState = false,
 }: DateTimePickerProps) {
-    console.log(ocupados);
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
 
     const handleDateChange = (date: Date | undefined) => {
         onDateSelect(date);
         if (date) {
-            router.reload({
-                only: ['ocupados'],
-            });
+            if (preserveState) {
+                router.get(window.location.href, {}, { preserveState: true, only: ['ocupados'] });
+            } else {
+                router.reload({ only: ['ocupados'] });
+            }
         }
     };
 
     const isOcupado = (hora: string) => {
         if (!selectedDate) return false;
-
         const dateStr = toDateString(selectedDate);
-
-        return ocupados.some((o) => {
-            const fecha = o.fecha.slice(0, 10);
-            return fecha === dateStr && o.hora === hora;
-        });
+        return ocupados.some((o) => o.fecha.slice(0, 10) === dateStr && o.hora === hora);
     };
 
     const isPasado = (hora: string) => {
@@ -136,22 +116,18 @@ export function DateTimePicker({
                         />
                     </PopoverContent>
                 </Popover>
-                {errors?.fecha && (
-                    <p className="text-xs text-red-500">{errors.fecha}</p>
-                )}
+                {errors?.fecha && <p className="text-xs text-red-500">{errors.fecha}</p>}
             </div>
 
             <div className="flex flex-col gap-1.5">
                 <Label>Hora *</Label>
-                {errors?.hora && (
-                    <p className="text-xs text-red-500">{errors.hora}</p>
-                )}
+                {errors?.hora && <p className="text-xs text-red-500">{errors.hora}</p>}
                 {!selectedDate && (
                     <p className="text-sm font-medium text-gray-400 italic">
                         Selecciona una fecha primero para ver horarios
                     </p>
                 )}
-                <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
+                <div className="grid gap-2 [grid-template-columns:repeat(auto-fill,minmax(4.5rem,1fr))]">
                     {HORARIOS.map((h) => {
                         const ocupado = isOcupado(h);
                         const pasado = isPasado(h);
@@ -163,8 +139,7 @@ export function DateTimePicker({
                         let disabled = !selectedDate;
 
                         if (selected) {
-                            stateStyles =
-                                'border-rose-500 bg-rose-600 shadow-md';
+                            stateStyles = 'border-rose-500 bg-rose-600 shadow-md';
                             textColor = 'text-white';
                         } else if (ocupado) {
                             stateStyles =
@@ -190,19 +165,13 @@ export function DateTimePicker({
                                     textColor,
                                     pasado && 'line-through',
                                 )}
-                                title={
-                                    ocupado
-                                        ? 'Ocupado'
-                                        : pasado
-                                          ? 'Ya pasó esta hora'
-                                          : ''
-                                }
+                                title={ocupado ? 'Ocupado' : pasado ? 'Ya pasó esta hora' : ''}
                             >
                                 {formatTime(h)}
                                 {ocupado && (
                                     <span className="absolute -top-1 -right-1 flex h-2 w-2">
-                                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75"></span>
-                                        <span className="relative inline-flex h-2 w-2 rounded-full bg-rose-500"></span>
+                                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75" />
+                                        <span className="relative inline-flex h-2 w-2 rounded-full bg-rose-500" />
                                     </span>
                                 )}
                             </button>

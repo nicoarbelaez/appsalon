@@ -78,12 +78,13 @@ export function ServiceSelector({
             </div>
 
             {selectedIds.length > 0 && (
-                <div className="mt-4 flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50 px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
-                    <div className="flex items-center gap-2 text-sm text-gray-500">
-                        <Clock className="h-4 w-4" />
-                        Duración: {duracion} min
+                <div className="mt-4 flex flex-col gap-2 rounded-lg border border-gray-100 bg-gray-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between dark:border-gray-700 dark:bg-gray-800">
+                    <div className="flex items-center gap-2 text-xs text-gray-500 sm:text-sm">
+                        <Clock className="h-4 w-4 shrink-0" />
+                        <span>Duración: {duracion} min</span>
                     </div>
-                    <p className="font-bold text-rose-600">
+
+                    <p className="text-right text-sm font-semibold text-rose-600 sm:text-left sm:text-base sm:font-bold">
                         Total: ${total.toFixed(2)}
                     </p>
                 </div>
