@@ -70,7 +70,7 @@ const adminNavItems: NavItem[] = [
 ];
 
 export function AppSidebar() {
-    const { auth } = usePage().props as { auth: { isAdmin: boolean; user: { rol?: string } } };
+    const { auth } = usePage().props as unknown as { auth: { isAdmin: boolean; user: { rol?: string } } };
 
     let navItems: NavItem[];
     if (auth.isAdmin) {

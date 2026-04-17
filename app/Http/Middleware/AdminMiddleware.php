@@ -9,7 +9,7 @@ class AdminMiddleware
 {
     public function handle(Request $request, Closure $next)
     {
-        if (! $request->user()?->admin) {
+        if (! $request->user()?->isAdmin()) {
             abort(403, 'Acceso denegado. Solo administradores.');
         }
 

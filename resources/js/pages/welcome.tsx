@@ -20,7 +20,7 @@ export default function Welcome({
     canRegister?: boolean;
     servicios?: Servicio[];
 }) {
-    const { auth } = usePage().props as { auth: { user: null | { nombre: string } } };
+    const { auth } = usePage().props as unknown as { auth: { user: null | { nombre: string } } };
 
     return (
         <>

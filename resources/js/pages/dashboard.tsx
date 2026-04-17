@@ -56,7 +56,7 @@ function formatHora(hora: string) {
 }
 
 export default function Dashboard({ proximasCitas = [], stats }: Props) {
-    const { auth } = usePage().props as { auth: { user: { nombre: string; apellido: string } } };
+    const { auth } = usePage().props as unknown as { auth: { user: { nombre: string; apellido: string } } };
 
     return (
         <>
