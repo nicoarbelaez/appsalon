@@ -32,7 +32,9 @@ Route::middleware(['auth', 'funcionario'])->prefix('funcionario')->name('funcion
 // Admin routes
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
-    Route::resource('/servicios', AdminServicioController::class);
+    Route::post('/servicios/bulk-destroy', [AdminServicioController::class, 'bulkDestroy'])->name('servicios.bulk-destroy');
+    Route::post('/servicios/bulk-toggle', [AdminServicioController::class, 'bulkToggle'])->name('servicios.bulk-toggle');
+    Route::resource('/servicios', AdminServicioController::class)->except(['show', 'create', 'edit']);
     Route::resource('/usuarios', AdminUsuarioController::class)->only(['index', 'store', 'edit', 'update', 'destroy']);
 });
 
