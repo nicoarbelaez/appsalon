@@ -54,7 +54,7 @@ export default function AdminServiciosCreate() {
                                         type="number"
                                         step="0.01"
                                         min="0"
-                                        max="999.99"
+                                        max="99999999.99"
                                         value={data.precio}
                                         onChange={(e) => setData('precio', e.target.value)}
                                         placeholder="0.00"

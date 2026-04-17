@@ -57,7 +57,7 @@ class ServicioController extends Controller
     {
         $validated = $request->validate([
             'nombre'      => 'required|string|max:60',
-            'precio'      => 'required|numeric|min:0|max:999.99',
+            'precio'      => 'required|numeric|min:0',
             'descripcion' => 'nullable|string|max:500',
             'duracion'    => 'required|integer|min:15|max:480',
             'activo'      => 'boolean',
@@ -72,7 +72,7 @@ class ServicioController extends Controller
     {
         $validated = $request->validate([
             'nombre'      => 'required|string|max:60',
-            'precio'      => 'required|numeric|min:0|max:999.99',
+            'precio'      => 'required|numeric|min:0',
             'descripcion' => 'nullable|string|max:500',
             'duracion'    => 'required|integer|min:15|max:480',
             'activo'      => 'boolean',
@@ -254,7 +254,7 @@ class ServicioController extends Controller
     {
         return [
             'nombre'      => ['required', 'string', 'max:60'],
-            'precio'      => ['required', 'numeric', 'min:0', 'max:999.99'],
+            'precio'      => ['required', 'numeric', 'min:0', 'max:99999999.99'],
             'descripcion' => ['nullable', 'string', 'max:500'],
             'duracion'    => ['required', 'integer', 'min:15', 'max:480'],
         ];
