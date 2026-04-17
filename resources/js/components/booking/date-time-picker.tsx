@@ -9,6 +9,8 @@ import {
     PopoverTrigger,
 } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
+import { router } from '@inertiajs/react';
+import { toDateString } from '@/lib/date';
 
 interface BusySlot {
     fecha: string;
@@ -58,12 +60,6 @@ function formatTime(hora: string) {
     });
 }
 
-function toDateString(date: Date): string {
-    const yyyy = date.getFullYear();
-    const mm = String(date.getMonth() + 1).padStart(2, '0');
-    const dd = String(date.getDate()).padStart(2, '0');
-    return `${yyyy}-${mm}-${dd}`;
-}
 
 export function DateTimePicker({
     selectedDate,
@@ -75,6 +71,16 @@ export function DateTimePicker({
 }: DateTimePickerProps) {
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
+
+    const handleDateChange = (date: Date | undefined) => {
+        console.log('[date-time-picker.tsx] handleDateChange (fecha): ', date); // TODO: Remove
+        onDateSelect(date);
+        if (date) {
+            router.reload({
+                only: ['ocupados'],
+            });
+        }
+    };
 
     const isOcupado = (hora: string) => {
         if (!selectedDate) return false;
@@ -101,7 +107,7 @@ export function DateTimePicker({
                         <Button
                             variant="outline"
                             className={cn(
-                                'w-full justify-start text-left font-normal',
+                                'w-full justify-start text-left font-normal transition-colors hover:border-rose-200',
                                 !selectedDate && 'text-muted-foreground',
                             )}
                         >
@@ -120,7 +126,7 @@ export function DateTimePicker({
                         <Calendar
                             mode="single"
                             selected={selectedDate}
-                            onSelect={onDateSelect}
+                            onSelect={handleDateChange}
                             disabled={{ before: hoy }}
                             initialFocus
                         />
@@ -145,30 +151,62 @@ export function DateTimePicker({
                     {HORARIOS.map((h) => {
                         const ocupado = isOcupado(h);
                         const pasado = isPasado(h);
-                        const disabled = ocupado || pasado || !selectedDate;
+                        const selected = selectedTime === h;
+
+                        let stateStyles =
+                            'border-gray-100 hover:border-rose-300 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-900';
+                        let textColor = 'text-gray-900 dark:text-gray-100';
+                        let disabled = !selectedDate;
+
+                        if (selected) {
+                            stateStyles =
+                                'border-rose-500 bg-rose-600 shadow-md';
+                            textColor = 'text-white';
+                        } else if (ocupado) {
+                            stateStyles =
+                                'border-rose-100 bg-rose-50/50 cursor-not-allowed dark:border-rose-900/30 dark:bg-rose-900/10';
+                            textColor = 'text-rose-300 dark:text-rose-800';
+                            disabled = true;
+                        } else if (pasado) {
+                            stateStyles =
+                                'border-gray-50 bg-gray-50/30 cursor-not-allowed opacity-50 dark:border-gray-900 dark:bg-gray-900/40';
+                            textColor = 'text-gray-300 dark:text-gray-700';
+                            disabled = true;
+                        }
 
                         return (
                             <button
                                 key={h}
                                 type="button"
                                 disabled={disabled}
-                                onClick={() => onTimeSelect(h)}
-                                className={`rounded-md border py-2 text-xs font-medium transition-all ${
-                                    selectedTime === h
-                                        ? 'border-rose-500 bg-rose-600 text-white shadow-sm'
-                                        : disabled
-                                          ? 'cursor-not-allowed border-gray-100 bg-gray-50 text-gray-300 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-600'
-                                          : 'border-gray-100 hover:border-rose-300 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-900'
-                                }`}
+                                onClick={() => {
+                                    console.log(
+                                        '[date-time-picker.tsx] onTimeSelect (hora): ',
+                                        h,
+                                    ); // TODO: Remove
+                                    return onTimeSelect(h);
+                                }}
+                                className={cn(
+                                    'relative rounded-md border py-2 text-xs font-semibold transition-all duration-200',
+                                    stateStyles,
+                                    textColor,
+                                    pasado && 'line-through',
+                                )}
                                 title={
                                     ocupado
-                                        ? 'Ya ocupado'
+                                        ? 'Ocupado'
                                         : pasado
-                                          ? 'Hora pasada'
+                                          ? 'Ya pasó esta hora'
                                           : ''
                                 }
                             >
                                 {formatTime(h)}
+                                {ocupado && (
+                                    <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75"></span>
+                                        <span className="relative inline-flex h-2 w-2 rounded-full bg-rose-500"></span>
+                                    </span>
+                                )}
                             </button>
                         );
                     })}
