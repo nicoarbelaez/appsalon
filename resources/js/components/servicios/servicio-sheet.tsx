@@ -50,7 +50,7 @@ export function ServicioSheet({
             reset();
         }
         clearErrors();
-    }, [mode, servicio?.id]);
+    }, [mode, servicio?.id, open]);
 
     function handleOpenChange(v: boolean) {
         if (!v) {
