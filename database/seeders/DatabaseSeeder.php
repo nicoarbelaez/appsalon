@@ -19,6 +19,18 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('password'),
             'telefono' => '3001234567',
             'admin' => true,
+            'rol' => 'admin',
+            'confirmado' => true,
+        ]);
+
+        User::create([
+            'nombre' => 'Laura',
+            'apellido' => 'Estilista',
+            'email' => 'funcionario@appsalon.com',
+            'password' => Hash::make('password'),
+            'telefono' => '3005551234',
+            'admin' => false,
+            'rol' => 'funcionario',
             'confirmado' => true,
         ]);
 
@@ -29,6 +41,7 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('password'),
             'telefono' => '3009876543',
             'admin' => false,
+            'rol' => 'cliente',
             'confirmado' => true,
         ]);
 
