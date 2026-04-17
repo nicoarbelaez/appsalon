@@ -24,7 +24,14 @@ export function formatFecha(fecha: string) {
 export function formatHora(hora: string) {
     try {
         const [h, m] = hora.split(':');
-        return `${h}:${m}`;
+
+        let hour = parseInt(h, 10);
+        const ampm = hour >= 12 ? 'PM' : 'AM';
+
+        hour = hour % 12;
+        hour = hour === 0 ? 12 : hour; // 0 → 12
+
+        return `${hour}:${m} ${ampm}`;
     } catch (e) {
         return hora;
     }
