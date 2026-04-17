@@ -60,7 +60,7 @@ const adminNavItems: NavItem[] = [
         icon: ClipboardList,
     },
     {
-        title: 'Admin: Panel',
+        title: 'Panel',
         href: '/admin',
         icon: ShieldCheck,
     },
@@ -70,7 +70,7 @@ const adminNavItems: NavItem[] = [
         icon: Scissors,
     },
     {
-        title: 'Admin: Usuarios',
+        title: 'Usuarios',
         href: '/admin/usuarios',
         icon: Users,
     },
