@@ -113,6 +113,44 @@ export default function Dashboard({ proximasCitas = [], stats }: Props) {
                     </Card>
                 </div>
 
+                {/* Share Link */}
+                <Card className="bg-gradient-to-br from-indigo-50 to-white dark:from-indigo-950/20 dark:to-gray-900 border-indigo-100 dark:border-indigo-900">
+                    <CardHeader className="pb-3">
+                        <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                            <Plus className="h-5 w-5 text-indigo-500" />
+                            Comparte tu negocio
+                        </CardTitle>
+                        <CardDescription>Usa este link para que tus clientes agenden sin registrarse</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex items-center gap-2">
+                            <div className="flex-1 rounded-md border bg-white px-3 py-2 text-sm text-gray-600 shadow-sm dark:bg-gray-800 dark:border-gray-700 truncate font-mono">
+                                {window.location.origin}/reservar
+                            </div>
+                            <Button 
+                                variant="outline"
+                                className="border-indigo-200 hover:bg-indigo-50 text-indigo-600 dark:border-indigo-800 dark:hover:bg-indigo-950"
+                                onClick={() => {
+                                    const shareData = {
+                                        title: 'App Salón',
+                                        text: 'Agenda tu cita en App Salón',
+                                        url: `${window.location.origin}/reservar`,
+                                    };
+
+                                    if (navigator.share && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                                        navigator.share(shareData).catch(console.error);
+                                    } else {
+                                        navigator.clipboard.writeText(shareData.url);
+                                        alert('Link copiado al portapapeles');
+                                    }
+                                }}
+                            >
+                                Compartir
+                            </Button>
+                        </div>
+                    </CardContent>
+                </Card>
+
                 {/* Upcoming appointments */}
                 <Card>
                     <CardHeader>

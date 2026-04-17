@@ -102,7 +102,7 @@ export default function Welcome({
                                 <>
                                     {canRegister && (
                                         <Button size="lg" className="bg-rose-600 hover:bg-rose-700" asChild>
-                                            <Link href={register()}>
+                                            <Link href="/reservar">
                                                 <CalendarDays className="mr-2 h-5 w-5" />
                                                 Reservar cita
                                             </Link>
@@ -210,9 +210,9 @@ export default function Welcome({
                                                 <span className="text-2xl font-bold text-rose-600">
                                                     ${servicio.precio}
                                                 </span>
-                                                {!auth.user && canRegister && (
+                                                {!auth.user && (
                                                     <Button size="sm" variant="outline" asChild>
-                                                        <Link href={register()}>Reservar</Link>
+                                                        <Link href="/reservar">Reservar</Link>
                                                     </Button>
                                                 )}
                                                 {auth.user && (
@@ -240,7 +240,7 @@ export default function Welcome({
                                 Regístrate gratis y reserva tu primera cita en minutos.
                             </p>
                             <Button size="lg" className="bg-white text-rose-600 hover:bg-rose-50" asChild>
-                                <Link href={register()}>Crear cuenta gratis</Link>
+                                <Link href="/reservar">Hacer una reserva</Link>
                             </Button>
                         </div>
                     </section>
