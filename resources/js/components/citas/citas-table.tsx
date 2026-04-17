@@ -10,7 +10,7 @@ import {
     SortingState,
     useReactTable,
 } from '@tanstack/react-table';
-import { ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowUpDown, ChevronLeft, ChevronRight, MessageCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,6 +32,7 @@ import {
 } from '@/components/ui/table';
 import { EstadoBadge, estadoConfig } from '@/components/citas/estado-badge';
 import { formatFecha, formatHora } from '@/lib/date';
+import { compartirCitaWhatsApp } from '@/lib/whatsapp';
 import type { Cita, EstadoCita } from '@/types/citas';
 
 export function getNombreCliente(cita: Cita) {
@@ -115,6 +116,29 @@ function buildColumns(mode: 'agenda' | 'mis-citas'): ColumnDef<Cita>[] {
             cell: ({ row }) => <EstadoBadge estado={row.original.estado} />,
             filterFn: (row, _, filterValue) =>
                 !filterValue || filterValue === 'todos' || row.original.estado === filterValue,
+        },
+        {
+            id: 'whatsapp',
+            header: '',
+            cell: ({ row }) => {
+                const cita = row.original;
+                if (!['pendiente', 'confirmada'].includes(cita.estado)) return null;
+                return (
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 w-7 p-0 text-green-600 hover:bg-green-50 hover:text-green-700"
+                        title="Compartir por WhatsApp"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            compartirCitaWhatsApp(cita);
+                        }}
+                    >
+                        <MessageCircle className="h-4 w-4" />
+                        <span className="sr-only">Compartir por WhatsApp</span>
+                    </Button>
+                );
+            },
         },
     );
 

@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Head } from '@inertiajs/react';
 import { toast } from 'sonner';
 import { formatFecha, formatHora } from '@/lib/date';
+import { compartirCitaWhatsApp } from '@/lib/whatsapp';
 import {
     CalendarDays,
     CheckCircle2,
@@ -62,8 +63,6 @@ const estadoConfig: Record<
     },
 };
 
-
-
 export default function ReservarEstado({ cita, token }: Props) {
     const config = estadoConfig[cita.estado] ?? estadoConfig.pendiente;
     const statusUrl =
@@ -87,20 +86,7 @@ export default function ReservarEstado({ cita, token }: Props) {
     }
 
     function compartirWhatsApp() {
-        const serviciosList = cita.servicios
-            .map((s) => `• ${s.nombre}`)
-            .join('\n');
-        const mensaje =
-            `¡Hola! Aquí están los datos de mi cita en AppSalon:\n\n` +
-            `📅 Fecha: ${formatFecha(cita.fecha)}\n` +
-            `🕐 Hora: ${formatHora(cita.hora)}\n` +
-            `💇 Servicios:\n${serviciosList}\n` +
-            `💰 Total: $${parseFloat(cita.total).toFixed(2)}\n` +
-            `📋 Estado: ${config.label}\n\n` +
-            `Código de seguimiento: ${token}`;
-
-        const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(mensaje)}`;
-        window.open(url, '_blank');
+        compartirCitaWhatsApp(cita, token);
     }
 
     return (
