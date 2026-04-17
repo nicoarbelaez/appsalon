@@ -51,6 +51,7 @@ class SecurityController extends Controller implements HasMiddleware
     {
         $request->user()->update([
             'password' => $request->password,
+            'requiere_cambio_password' => false,
         ]);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Password updated.')]);

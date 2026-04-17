@@ -11,7 +11,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 
-#[Fillable(['nombre', 'apellido', 'email', 'password', 'telefono', 'admin', 'rol', 'confirmado', 'token'])]
+#[Fillable(['nombre', 'apellido', 'email', 'password', 'telefono', 'admin', 'rol', 'confirmado', 'token', 'requiere_cambio_password'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -26,6 +26,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'admin' => 'boolean',
             'confirmado' => 'boolean',
+            'requiere_cambio_password' => 'boolean',
             'two_factor_confirmed_at' => 'datetime',
         ];
     }
