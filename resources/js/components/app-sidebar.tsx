@@ -65,7 +65,7 @@ const adminNavItems: NavItem[] = [
         icon: ShieldCheck,
     },
     {
-        title: 'Admin: Servicios',
+        title: 'Servicios',
         href: '/admin/servicios',
         icon: Scissors,
     },
