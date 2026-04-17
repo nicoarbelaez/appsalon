@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { CalendarDays, LayoutGrid, Scissors, Settings2, ShieldCheck } from 'lucide-react';
+import { CalendarDays, ClipboardList, LayoutGrid, Scissors, ShieldCheck, Users } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
@@ -28,6 +28,19 @@ const clientNavItems: NavItem[] = [
     },
 ];
 
+const funcionarioNavItems: NavItem[] = [
+    {
+        title: 'Dashboard',
+        href: dashboard(),
+        icon: LayoutGrid,
+    },
+    {
+        title: 'Agenda de citas',
+        href: '/funcionario/citas',
+        icon: ClipboardList,
+    },
+];
+
 const adminNavItems: NavItem[] = [
     {
         title: 'Dashboard',
@@ -49,12 +62,24 @@ const adminNavItems: NavItem[] = [
         href: '/admin/servicios',
         icon: Scissors,
     },
+    {
+        title: 'Admin: Usuarios',
+        href: '/admin/usuarios',
+        icon: Users,
+    },
 ];
 
 export function AppSidebar() {
-    const { auth } = usePage().props as { auth: { isAdmin: boolean } };
+    const { auth } = usePage().props as { auth: { isAdmin: boolean; user: { rol?: string } } };
 
-    const navItems = auth.isAdmin ? adminNavItems : clientNavItems;
+    let navItems: NavItem[];
+    if (auth.isAdmin) {
+        navItems = adminNavItems;
+    } else if (auth.user?.rol === 'funcionario') {
+        navItems = funcionarioNavItems;
+    } else {
+        navItems = clientNavItems;
+    }
 
     return (
         <Sidebar collapsible="icon" variant="inset">

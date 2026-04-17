@@ -1,9 +1,11 @@
+import * as React from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { CalendarDays, Clock } from 'lucide-react';
+import { CalendarIcon, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
 import { dashboard } from '@/routes';
 
 interface Servicio {
@@ -30,7 +32,16 @@ function formatHora(hora: string) {
     return d.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
 }
 
+function toDateString(date: Date): string {
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+}
+
 export default function CitasCreate({ servicios }: Props) {
+    const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(undefined);
+
     const { data, setData, post, processing, errors } = useForm<{
         fecha: string;
         hora: string;
@@ -41,28 +52,31 @@ export default function CitasCreate({ servicios }: Props) {
         servicios: [],
     });
 
-    function toggleServicio(id: number) {
-        if (data.servicios.includes(id)) {
-            setData('servicios', data.servicios.filter((s) => s !== id));
-        } else {
-            setData('servicios', [...data.servicios, id]);
-        }
+    function handleDaySelect(day: Date | undefined) {
+        setSelectedDate(day);
+        setData('fecha', day ? toDateString(day) : '');
     }
 
-    const totalSeleccionado = servicios
-        .filter((s) => data.servicios.includes(s.id))
-        .reduce((acc, s) => acc + parseFloat(s.precio), 0);
+    function toggleServicio(id: number) {
+        setData(
+            'servicios',
+            data.servicios.includes(id)
+                ? data.servicios.filter((s) => s !== id)
+                : [...data.servicios, id],
+        );
+    }
 
-    const duracionTotal = servicios
-        .filter((s) => data.servicios.includes(s.id))
-        .reduce((acc, s) => acc + s.duracion, 0);
+    const serviciosSeleccionados = servicios.filter((s) => data.servicios.includes(s.id));
+    const totalSeleccionado = serviciosSeleccionados.reduce((acc, s) => acc + parseFloat(s.precio), 0);
+    const duracionTotal = serviciosSeleccionados.reduce((acc, s) => acc + s.duracion, 0);
 
     function submit(e: React.FormEvent) {
         e.preventDefault();
         post('/citas');
     }
 
-    const today = new Date().toISOString().split('T')[0];
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
 
     return (
         <>
@@ -77,7 +91,7 @@ export default function CitasCreate({ servicios }: Props) {
                 </div>
 
                 <form onSubmit={submit} className="flex flex-col gap-6">
-                    {/* Services selection */}
+                    {/* Services */}
                     <Card>
                         <CardHeader>
                             <CardTitle className="text-base">1. Selecciona servicios</CardTitle>
@@ -102,20 +116,14 @@ export default function CitasCreate({ servicios }: Props) {
                                             }`}
                                         >
                                             <div className="flex items-start justify-between">
-                                                <p className="text-sm font-medium text-gray-900 dark:text-white">
-                                                    {s.nombre}
-                                                </p>
-                                                {selected && (
-                                                    <span className="ml-1 text-rose-600">✓</span>
-                                                )}
+                                                <p className="text-sm font-medium">{s.nombre}</p>
+                                                {selected && <span className="text-rose-600">✓</span>}
                                             </div>
                                             <div className="mt-1 flex items-center gap-2">
                                                 <span className="text-sm font-semibold text-rose-600">
                                                     ${s.precio}
                                                 </span>
-                                                <span className="text-xs text-gray-400">
-                                                    • {s.duracion} min
-                                                </span>
+                                                <span className="text-xs text-gray-400">• {s.duracion} min</span>
                                             </div>
                                         </button>
                                     );
@@ -124,9 +132,9 @@ export default function CitasCreate({ servicios }: Props) {
 
                             {data.servicios.length > 0 && (
                                 <div className="mt-4 flex items-center justify-between rounded-lg bg-gray-50 px-4 py-3 dark:bg-gray-800">
-                                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                                    <div className="flex items-center gap-2 text-sm text-gray-500">
                                         <Clock className="h-4 w-4" />
-                                        <span>Duración total: {duracionTotal} min</span>
+                                        <span>Duración: {duracionTotal} min</span>
                                     </div>
                                     <p className="font-bold text-rose-600">
                                         Total: ${totalSeleccionado.toFixed(2)}
@@ -136,31 +144,52 @@ export default function CitasCreate({ servicios }: Props) {
                         </CardContent>
                     </Card>
 
-                    {/* Date and time */}
+                    {/* Date & Time */}
                     <Card>
                         <CardHeader>
                             <CardTitle className="text-base">2. Elige fecha y hora</CardTitle>
                         </CardHeader>
                         <CardContent className="flex flex-col gap-4">
+                            {/* Date picker */}
                             <div className="flex flex-col gap-1.5">
-                                <Label htmlFor="fecha">Fecha *</Label>
-                                <Input
-                                    id="fecha"
-                                    type="date"
-                                    min={today}
-                                    value={data.fecha}
-                                    onChange={(e) => setData('fecha', e.target.value)}
-                                />
-                                {errors.fecha && (
-                                    <p className="text-xs text-red-500">{errors.fecha}</p>
-                                )}
+                                <label className="text-sm font-medium">Fecha *</label>
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            className={cn(
+                                                'w-full justify-start text-left font-normal',
+                                                !selectedDate && 'text-muted-foreground',
+                                            )}
+                                        >
+                                            <CalendarIcon className="mr-2 h-4 w-4" />
+                                            {selectedDate
+                                                ? selectedDate.toLocaleDateString('es-CO', {
+                                                      weekday: 'long',
+                                                      year: 'numeric',
+                                                      month: 'long',
+                                                      day: 'numeric',
+                                                  })
+                                                : 'Selecciona una fecha'}
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0" align="start">
+                                        <Calendar
+                                            mode="single"
+                                            selected={selectedDate}
+                                            onSelect={handleDaySelect}
+                                            disabled={{ before: hoy }}
+                                            initialFocus
+                                        />
+                                    </PopoverContent>
+                                </Popover>
+                                {errors.fecha && <p className="text-xs text-red-500">{errors.fecha}</p>}
                             </div>
 
+                            {/* Time slots */}
                             <div className="flex flex-col gap-1.5">
-                                <Label>Hora *</Label>
-                                {errors.hora && (
-                                    <p className="text-xs text-red-500">{errors.hora}</p>
-                                )}
+                                <label className="text-sm font-medium">Hora *</label>
+                                {errors.hora && <p className="text-xs text-red-500">{errors.hora}</p>}
                                 <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
                                     {HORARIOS.map((h) => (
                                         <button
@@ -184,14 +213,14 @@ export default function CitasCreate({ servicios }: Props) {
                     {/* Summary */}
                     {data.servicios.length > 0 && data.fecha && data.hora && (
                         <Card className="border-rose-100 bg-rose-50 dark:border-rose-900 dark:bg-rose-900/10">
-                            <CardContent className="pt-4">
-                                <p className="text-sm font-medium text-rose-700 dark:text-rose-400">
+                            <CardContent className="pt-4 text-sm">
+                                <p className="mb-2 font-semibold text-rose-700 dark:text-rose-400">
                                     Resumen de tu cita
                                 </p>
-                                <div className="mt-2 space-y-1 text-sm text-gray-600 dark:text-gray-300">
+                                <div className="space-y-1 text-gray-600 dark:text-gray-300">
                                     <p>
                                         <span className="font-medium">Fecha:</span>{' '}
-                                        {new Date(data.fecha + 'T00:00:00').toLocaleDateString('es-CO', {
+                                        {selectedDate?.toLocaleDateString('es-CO', {
                                             weekday: 'long',
                                             year: 'numeric',
                                             month: 'long',
@@ -215,7 +244,9 @@ export default function CitasCreate({ servicios }: Props) {
                     <div className="flex gap-3">
                         <Button
                             type="submit"
-                            disabled={processing || !data.fecha || !data.hora || data.servicios.length === 0}
+                            disabled={
+                                processing || !data.fecha || !data.hora || data.servicios.length === 0
+                            }
                             className="bg-rose-600 hover:bg-rose-700"
                         >
                             {processing ? 'Reservando...' : 'Confirmar reserva'}
