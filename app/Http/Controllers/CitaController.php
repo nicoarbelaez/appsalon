@@ -17,8 +17,16 @@ class CitaController extends Controller
             ->orderByDesc('hora')
             ->get();
 
+        $ocupados = Cita::where('fecha', '>=', now()->toDateString())
+            ->where('estado', '!=', 'cancelada')
+            ->select('fecha', 'hora')
+            ->get()
+            ->map(fn($c) => ['fecha' => $c->fecha, 'hora' => substr($c->hora, 0, 5)]);
+
         return Inertia::render('citas/index', [
-            'citas' => $citas,
+            'citas'    => $citas,
+            'servicios' => Servicio::where('activo', true)->orderBy('nombre')->get(),
+            'ocupados' => $ocupados,
         ]);
     }
 

@@ -25,6 +25,8 @@ Route::middleware(['auth'])->group(function () {
 // Funcionario routes (staff + admin)
 Route::middleware(['auth', 'funcionario'])->prefix('funcionario')->name('funcionario.')->group(function () {
     Route::get('/citas', [FuncionarioCitaController::class, 'index'])->name('citas');
+    Route::post('/citas', [FuncionarioCitaController::class, 'store'])->name('citas.store');
+    Route::patch('/citas/{cita}', [FuncionarioCitaController::class, 'update'])->name('citas.update');
 });
 
 // Admin routes
