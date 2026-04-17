@@ -125,23 +125,37 @@ export default function Dashboard({ proximasCitas = [], stats }: Props) {
                     <CardContent>
                         <div className="flex items-center gap-2">
                             <div className="flex-1 rounded-md border bg-white px-3 py-2 text-sm text-gray-600 shadow-sm dark:bg-gray-800 dark:border-gray-700 truncate font-mono">
-                                {window.location.origin}/reservar
+                                {typeof window !== 'undefined' ? `${window.location.origin}/reservar` : '/reservar'}
                             </div>
                             <Button 
                                 variant="outline"
                                 className="border-indigo-200 hover:bg-indigo-50 text-indigo-600 dark:border-indigo-800 dark:hover:bg-indigo-950"
                                 onClick={() => {
+                                    const url = `${window.location.origin}/reservar`;
                                     const shareData = {
                                         title: 'App Salón',
                                         text: 'Agenda tu cita en App Salón',
-                                        url: `${window.location.origin}/reservar`,
+                                        url: url,
                                     };
 
                                     if (navigator.share && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
                                         navigator.share(shareData).catch(console.error);
-                                    } else {
-                                        navigator.clipboard.writeText(shareData.url);
+                                    } else if (navigator.clipboard) {
+                                        navigator.clipboard.writeText(url);
                                         alert('Link copiado al portapapeles');
+                                    } else {
+                                        // Fallback for non-secure contexts
+                                        const textArea = document.createElement("textarea");
+                                        textArea.value = url;
+                                        document.body.appendChild(textArea);
+                                        textArea.select();
+                                        try {
+                                            document.execCommand('copy');
+                                            alert('Link copiado al portapapeles');
+                                        } catch (err) {
+                                            alert('No se pudo copiar el link. Por favor, cópialo manualmente: ' + url);
+                                        }
+                                        document.body.removeChild(textArea);
                                     }
                                 }}
                             >
