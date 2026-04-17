@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
+import { Input, inputClass } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -13,6 +13,7 @@ import {
     SheetTitle,
 } from '@/components/ui/sheet';
 import type { Servicio } from '@/types/servicios';
+import { IMaskInput } from 'react-imask';
 
 interface ServicioSheetProps {
     mode: 'create' | 'edit';
@@ -21,14 +22,20 @@ interface ServicioSheetProps {
     onOpenChange: (open: boolean) => void;
 }
 
-export function ServicioSheet({ mode, servicio, open, onOpenChange }: ServicioSheetProps) {
-    const { data, setData, post, put, processing, errors, reset, clearErrors } = useForm({
-        nombre: '',
-        precio: '',
-        descripcion: '',
-        duracion: 30,
-        activo: true,
-    });
+export function ServicioSheet({
+    mode,
+    servicio,
+    open,
+    onOpenChange,
+}: ServicioSheetProps) {
+    const { data, setData, post, put, processing, errors, reset, clearErrors } =
+        useForm({
+            nombre: '',
+            precio: '',
+            descripcion: '',
+            duracion: 30,
+            activo: true,
+        });
 
     React.useEffect(() => {
         if (mode === 'edit' && servicio) {
@@ -46,7 +53,10 @@ export function ServicioSheet({ mode, servicio, open, onOpenChange }: ServicioSh
     }, [mode, servicio?.id]);
 
     function handleOpenChange(v: boolean) {
-        if (!v) { reset(); clearErrors(); }
+        if (!v) {
+            reset();
+            clearErrors();
+        }
         onOpenChange(v);
     }
 
@@ -69,7 +79,11 @@ export function ServicioSheet({ mode, servicio, open, onOpenChange }: ServicioSh
         <Sheet open={open} onOpenChange={handleOpenChange}>
             <SheetContent className="overflow-y-auto sm:max-w-md">
                 <SheetHeader className="mb-4">
-                    <SheetTitle>{mode === 'create' ? 'Nuevo servicio' : 'Editar servicio'}</SheetTitle>
+                    <SheetTitle>
+                        {mode === 'create'
+                            ? 'Nuevo servicio'
+                            : 'Editar servicio'}
+                    </SheetTitle>
                     <SheetDescription>
                         {mode === 'create'
                             ? 'Completa los datos para crear un servicio.'
@@ -77,7 +91,10 @@ export function ServicioSheet({ mode, servicio, open, onOpenChange }: ServicioSh
                     </SheetDescription>
                 </SheetHeader>
 
-                <form onSubmit={handleSubmit} className="flex flex-col gap-5 px-4 pb-4">
+                <form
+                    onSubmit={handleSubmit}
+                    className="flex flex-col gap-5 px-4 pb-4"
+                >
                     <div className="flex flex-col gap-1.5">
                         <Label htmlFor="nombre">Nombre *</Label>
                         <Input
@@ -86,22 +103,38 @@ export function ServicioSheet({ mode, servicio, open, onOpenChange }: ServicioSh
                             onChange={(e) => setData('nombre', e.target.value)}
                             placeholder="Corte de cabello"
                         />
-                        {errors.nombre && <p className="text-xs text-red-500">{errors.nombre}</p>}
+                        {errors.nombre && (
+                            <p className="text-xs text-red-500">
+                                {errors.nombre}
+                            </p>
+                        )}
                     </div>
 
                     <div className="flex gap-4">
                         <div className="flex flex-1 flex-col gap-1.5">
                             <Label htmlFor="precio">Precio *</Label>
-                            <Input
+                            <IMaskInput
                                 id="precio"
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                value={data.precio}
-                                onChange={(e) => setData('precio', e.target.value)}
-                                placeholder="25.00"
+                                mask={Number}
+                                scale={2}
+                                thousandsSeparator="."
+                                radix=","
+                                mapToRadix={['.']}
+                                value={data.precio ?? ''}
+                                unmask={true}
+                                min={0}
+                                max={99999999.99}
+                                onAccept={(value) =>
+                                    setData('precio', value ?? '')
+                                }
+                                placeholder="2.500,00"
+                                className={inputClass}
                             />
-                            {errors.precio && <p className="text-xs text-red-500">{errors.precio}</p>}
+                            {errors.precio && (
+                                <p className="text-xs text-red-500">
+                                    {errors.precio}
+                                </p>
+                            )}
                         </div>
                         <div className="flex flex-1 flex-col gap-1.5">
                             <Label htmlFor="duracion">Duración (min) *</Label>
@@ -111,10 +144,19 @@ export function ServicioSheet({ mode, servicio, open, onOpenChange }: ServicioSh
                                 min="15"
                                 max="480"
                                 value={data.duracion}
-                                onChange={(e) => setData('duracion', parseInt(e.target.value))}
+                                onChange={(e) =>
+                                    setData(
+                                        'duracion',
+                                        parseInt(e.target.value),
+                                    )
+                                }
                                 placeholder="30"
                             />
-                            {errors.duracion && <p className="text-xs text-red-500">{errors.duracion}</p>}
+                            {errors.duracion && (
+                                <p className="text-xs text-red-500">
+                                    {errors.duracion}
+                                </p>
+                            )}
                         </div>
                     </div>
 
@@ -123,12 +165,18 @@ export function ServicioSheet({ mode, servicio, open, onOpenChange }: ServicioSh
                         <textarea
                             id="descripcion"
                             rows={3}
-                            className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                            className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                             value={data.descripcion}
-                            onChange={(e) => setData('descripcion', e.target.value)}
+                            onChange={(e) =>
+                                setData('descripcion', e.target.value)
+                            }
                             placeholder="Descripción opcional…"
                         />
-                        {errors.descripcion && <p className="text-xs text-red-500">{errors.descripcion}</p>}
+                        {errors.descripcion && (
+                            <p className="text-xs text-red-500">
+                                {errors.descripcion}
+                            </p>
+                        )}
                     </div>
 
                     <Separator />
@@ -139,7 +187,9 @@ export function ServicioSheet({ mode, servicio, open, onOpenChange }: ServicioSh
                             checked={data.activo}
                             onCheckedChange={(v) => setData('activo', !!v)}
                         />
-                        <Label htmlFor="activo" className="cursor-pointer">Servicio activo</Label>
+                        <Label htmlFor="activo" className="cursor-pointer">
+                            Servicio activo
+                        </Label>
                     </div>
 
                     <Separator />
@@ -149,7 +199,11 @@ export function ServicioSheet({ mode, servicio, open, onOpenChange }: ServicioSh
                         className="w-full bg-rose-600 hover:bg-rose-700"
                         disabled={processing}
                     >
-                        {processing ? 'Guardando…' : mode === 'create' ? 'Crear servicio' : 'Guardar cambios'}
+                        {processing
+                            ? 'Guardando…'
+                            : mode === 'create'
+                              ? 'Crear servicio'
+                              : 'Guardar cambios'}
                     </Button>
                 </form>
             </SheetContent>
