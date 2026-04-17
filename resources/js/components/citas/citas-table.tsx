@@ -10,7 +10,12 @@ import {
     SortingState,
     useReactTable,
 } from '@tanstack/react-table';
-import { ArrowUpDown, ChevronLeft, ChevronRight, MessageCircle } from 'lucide-react';
+import {
+    ArrowUpDown,
+    ChevronLeft,
+    ChevronRight,
+    MessageCircle,
+} from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -56,14 +61,18 @@ function buildColumns(mode: 'agenda' | 'mis-citas'): ColumnDef<Cita>[] {
                     variant="ghost"
                     size="sm"
                     className="-ml-2"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+                    onClick={() =>
+                        column.toggleSorting(column.getIsSorted() === 'asc')
+                    }
                 >
                     Fecha
                     <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
                 </Button>
             ),
             cell: ({ row }) => (
-                <span className="capitalize">{formatFecha(row.original.fecha)}</span>
+                <span className="capitalize">
+                    {formatFecha(row.original.fecha)}
+                </span>
             ),
         },
         {
@@ -93,7 +102,11 @@ function buildColumns(mode: 'agenda' | 'mis-citas'): ColumnDef<Cita>[] {
                 <ScrollArea className="w-44">
                     <div className="flex flex-wrap gap-1 pb-1">
                         {row.original.servicios.map((s) => (
-                            <Badge key={s.id} variant="secondary" className="text-xs">
+                            <Badge
+                                key={s.id}
+                                variant="secondary"
+                                className="text-xs"
+                            >
                                 {s.nombre}
                             </Badge>
                         ))}
@@ -106,7 +119,10 @@ function buildColumns(mode: 'agenda' | 'mis-citas'): ColumnDef<Cita>[] {
             header: 'Total',
             cell: ({ row }) => (
                 <span className="font-semibold text-rose-600">
-                    ${parseFloat(row.original.total).toLocaleString('es-CO', { minimumFractionDigits: 2 })}
+                    $
+                    {parseFloat(row.original.total).toLocaleString('es-CO', {
+                        minimumFractionDigits: 2,
+                    })}
                 </span>
             ),
         },
@@ -115,14 +131,17 @@ function buildColumns(mode: 'agenda' | 'mis-citas'): ColumnDef<Cita>[] {
             header: 'Estado',
             cell: ({ row }) => <EstadoBadge estado={row.original.estado} />,
             filterFn: (row, _, filterValue) =>
-                !filterValue || filterValue === 'todos' || row.original.estado === filterValue,
+                !filterValue ||
+                filterValue === 'todos' ||
+                row.original.estado === filterValue,
         },
         {
             id: 'whatsapp',
             header: '',
             cell: ({ row }) => {
                 const cita = row.original;
-                if (!['pendiente', 'confirmada'].includes(cita.estado)) return null;
+                if (!['pendiente', 'confirmada'].includes(cita.estado))
+                    return null;
                 return (
                     <Button
                         variant="ghost"
@@ -146,8 +165,11 @@ function buildColumns(mode: 'agenda' | 'mis-citas'): ColumnDef<Cita>[] {
 }
 
 export function CitasTable({ citas, mode, onRowClick }: CitasTableProps) {
-    const [sorting, setSorting] = React.useState<SortingState>([{ id: 'fecha', desc: false }]);
-    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+    const [sorting, setSorting] = React.useState<SortingState>([
+        { id: 'fecha', desc: false },
+    ]);
+    const [columnFilters, setColumnFilters] =
+        React.useState<ColumnFiltersState>([]);
 
     const columns = React.useMemo(() => buildColumns(mode), [mode]);
 
@@ -164,7 +186,8 @@ export function CitasTable({ citas, mode, onRowClick }: CitasTableProps) {
         initialState: { pagination: { pageSize: 15 } },
     });
 
-    const estadoFiltro = (table.getColumn('estado')?.getFilterValue() as string) ?? 'todos';
+    const estadoFiltro =
+        (table.getColumn('estado')?.getFilterValue() as string) ?? 'todos';
 
     return (
         <div className="flex flex-col gap-4">
@@ -173,8 +196,16 @@ export function CitasTable({ citas, mode, onRowClick }: CitasTableProps) {
                 {mode === 'agenda' && (
                     <Input
                         placeholder="Buscar por cliente…"
-                        value={(table.getColumn('nombre')?.getFilterValue() as string) ?? ''}
-                        onChange={(e) => table.getColumn('nombre')?.setFilterValue(e.target.value)}
+                        value={
+                            (table
+                                .getColumn('nombre')
+                                ?.getFilterValue() as string) ?? ''
+                        }
+                        onChange={(e) =>
+                            table
+                                .getColumn('nombre')
+                                ?.setFilterValue(e.target.value)
+                        }
                         className="h-8 w-56"
                     />
                 )}
@@ -182,7 +213,9 @@ export function CitasTable({ citas, mode, onRowClick }: CitasTableProps) {
                 <Select
                     value={estadoFiltro}
                     onValueChange={(v) =>
-                        table.getColumn('estado')?.setFilterValue(v === 'todos' ? undefined : v)
+                        table
+                            .getColumn('estado')
+                            ?.setFilterValue(v === 'todos' ? undefined : v)
                     }
                 >
                     <SelectTrigger className="h-8 w-40">
@@ -190,11 +223,13 @@ export function CitasTable({ citas, mode, onRowClick }: CitasTableProps) {
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="todos">Todos</SelectItem>
-                        {(Object.keys(estadoConfig) as EstadoCita[]).map((e) => (
-                            <SelectItem key={e} value={e}>
-                                {estadoConfig[e].label}
-                            </SelectItem>
-                        ))}
+                        {(Object.keys(estadoConfig) as EstadoCita[]).map(
+                            (e) => (
+                                <SelectItem key={e} value={e}>
+                                    {estadoConfig[e].label}
+                                </SelectItem>
+                            ),
+                        )}
                     </SelectContent>
                 </Select>
 
@@ -213,7 +248,11 @@ export function CitasTable({ citas, mode, onRowClick }: CitasTableProps) {
                                     <TableHead key={header.id}>
                                         {header.isPlaceholder
                                             ? null
-                                            : flexRender(header.column.columnDef.header, header.getContext())}
+                                            : flexRender(
+                                                  header.column.columnDef
+                                                      .header,
+                                                  header.getContext(),
+                                              )}
                                     </TableHead>
                                 ))}
                             </TableRow>
@@ -229,7 +268,10 @@ export function CitasTable({ citas, mode, onRowClick }: CitasTableProps) {
                                 >
                                     {row.getVisibleCells().map((cell) => (
                                         <TableCell key={cell.id}>
-                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                            {flexRender(
+                                                cell.column.columnDef.cell,
+                                                cell.getContext(),
+                                            )}
                                         </TableCell>
                                     ))}
                                 </TableRow>
