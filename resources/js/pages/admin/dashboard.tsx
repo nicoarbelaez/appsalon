@@ -23,7 +23,8 @@ interface Cita {
     hora: string;
     total: string;
     estado: string;
-    usuario: Usuario;
+    usuario: Usuario | null;
+    nombre_invitado: string | null;
     servicios: Servicio[];
 }
 
@@ -151,7 +152,9 @@ export default function AdminDashboard({ stats, citasHoy = [] }: Props) {
                                             <tr key={cita.id}>
                                                 <td className="py-3 font-medium">{formatHora(cita.hora)}</td>
                                                 <td className="py-3">
-                                                    {cita.usuario?.nombre} {cita.usuario?.apellido}
+                                                    {cita.usuario 
+                                                        ? `${cita.usuario.nombre} ${cita.usuario.apellido}`
+                                                        : cita.nombre_invitado || 'Anónimo'}
                                                 </td>
                                                 <td className="py-3 text-gray-500">
                                                     {cita.servicios.map((s) => s.nombre).join(', ')}
