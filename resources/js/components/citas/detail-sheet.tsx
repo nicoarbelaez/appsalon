@@ -1,5 +1,15 @@
 import * as React from 'react';
 import { router } from '@inertiajs/react';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -44,6 +54,8 @@ export function DetailSheet({
     const [estado, setEstado] = React.useState<EstadoCita>('pendiente');
     const [selectedIds, setSelectedIds] = React.useState<number[]>([]);
     const [saving, setSaving] = React.useState(false);
+    const [cancelConfirmOpen, setCancelConfirmOpen] = React.useState(false);
+    const [pendingEstado, setPendingEstado] = React.useState<EstadoCita | null>(null);
 
     React.useEffect(() => {
         if (cita) {
@@ -81,9 +93,13 @@ export function DetailSheet({
     }
 
     function handleCancelar() {
+        setCancelConfirmOpen(true);
+    }
+
+    function confirmCancelar() {
         if (!cita) return;
-        if (!confirm('¿Cancelar esta cita?')) return;
         onCancelar?.(cita.id);
+        setCancelConfirmOpen(false);
         onOpenChange(false);
     }
 
@@ -121,7 +137,17 @@ export function DetailSheet({
                                 <EstadoBadge estado={cita.estado} />
                             </div>
                         ) : (
-                            <Select value={estado} onValueChange={(v) => setEstado(v as EstadoCita)}>
+                            <Select
+                                value={estado}
+                                onValueChange={(v) => {
+                                    const next = v as EstadoCita;
+                                    if (next === 'cancelada') {
+                                        setPendingEstado(next);
+                                    } else {
+                                        setEstado(next);
+                                    }
+                                }}
+                            >
                                 <SelectTrigger className="w-full">
                                     <SelectValue />
                                 </SelectTrigger>
@@ -203,6 +229,46 @@ export function DetailSheet({
                     )}
                 </div>
             </SheetContent>
+
+            <AlertDialog open={cancelConfirmOpen} onOpenChange={setCancelConfirmOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>¿Cancelar esta cita?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Esta acción no tiene marcha atrás. La cita quedará cancelada y no podrá recuperarse.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Volver</AlertDialogCancel>
+                        <AlertDialogAction variant="destructive" onClick={confirmCancelar}>
+                            Sí, cancelar cita
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            <AlertDialog open={pendingEstado !== null} onOpenChange={(v) => { if (!v) setPendingEstado(null); }}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>¿Cambiar estado a "Cancelada"?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Una vez guardada, la cita quedará cancelada y no podrá editarse de nuevo.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel onClick={() => setPendingEstado(null)}>Volver</AlertDialogCancel>
+                        <AlertDialogAction
+                            variant="destructive"
+                            onClick={() => {
+                                if (pendingEstado) setEstado(pendingEstado);
+                                setPendingEstado(null);
+                            }}
+                        >
+                            Confirmar
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </Sheet>
     );
 }

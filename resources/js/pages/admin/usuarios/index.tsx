@@ -1,6 +1,15 @@
 import { useForm, Head, Link, router } from '@inertiajs/react';
 import { Edit, Plus, Trash2, UserCheck, UserX } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -40,6 +49,7 @@ const rolConfig: Record<string, { label: string; className: string }> = {
 
 export default function AdminUsuariosIndex({ usuarios }: Props) {
     const [isCreateOpen, setIsCreateOpen] = useState(false);
+    const [deletingUsuario, setDeletingUsuario] = useState<{ id: number; nombre: string } | null>(null);
     const { data, setData, post, processing, errors, reset } = useForm({
         nombre: '',
         apellido: '',
@@ -49,8 +59,13 @@ export default function AdminUsuariosIndex({ usuarios }: Props) {
     });
 
     function handleDelete(id: number, nombre: string) {
-        if (!confirm(`¿Eliminar usuario "${nombre}"? Esta acción no se puede deshacer.`)) return;
-        router.delete(`/admin/usuarios/${id}`);
+        setDeletingUsuario({ id, nombre });
+    }
+
+    function confirmDelete() {
+        if (!deletingUsuario) return;
+        router.delete(`/admin/usuarios/${deletingUsuario.id}`);
+        setDeletingUsuario(null);
     }
 
     function handleCreate(e: React.FormEvent) {
@@ -248,6 +263,23 @@ export default function AdminUsuariosIndex({ usuarios }: Props) {
                     </CardContent>
                 </Card>
             </div>
+
+            <AlertDialog open={deletingUsuario !== null} onOpenChange={(v) => { if (!v) setDeletingUsuario(null); }}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>¿Eliminar usuario?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Se eliminará <strong>{deletingUsuario?.nombre}</strong> permanentemente. Esta acción no se puede deshacer.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction variant="destructive" onClick={confirmDelete}>
+                            Eliminar
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </>
     );
 }
