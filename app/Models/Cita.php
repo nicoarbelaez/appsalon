@@ -11,7 +11,10 @@ class Cita extends Model
 
     protected $table = 'citas';
 
-    protected $fillable = ['fecha', 'hora', 'usuarioId', 'total', 'estado'];
+    protected $fillable = [
+        'fecha', 'hora', 'usuarioId', 'total', 'estado',
+        'nombre_invitado', 'email_invitado', 'telefono_invitado', 'token_seguimiento',
+    ];
 
     protected function casts(): array
     {
