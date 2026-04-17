@@ -1,5 +1,12 @@
 import { Link, usePage } from '@inertiajs/react';
-import { CalendarDays, ClipboardList, LayoutGrid, Scissors, ShieldCheck, Users } from 'lucide-react';
+import {
+    CalendarDays,
+    ClipboardList,
+    LayoutGrid,
+    Scissors,
+    ShieldCheck,
+    Users,
+} from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
@@ -48,9 +55,9 @@ const adminNavItems: NavItem[] = [
         icon: LayoutGrid,
     },
     {
-        title: 'Mis citas',
-        href: '/citas',
-        icon: CalendarDays,
+        title: 'Agenda de citas',
+        href: '/funcionario/citas',
+        icon: ClipboardList,
     },
     {
         title: 'Admin: Panel',
@@ -70,7 +77,9 @@ const adminNavItems: NavItem[] = [
 ];
 
 export function AppSidebar() {
-    const { auth } = usePage().props as unknown as { auth: { isAdmin: boolean; user: { rol?: string } } };
+    const { auth } = usePage().props as unknown as {
+        auth: { isAdmin: boolean; user: { rol?: string } };
+    };
 
     let navItems: NavItem[];
     if (auth.isAdmin) {
