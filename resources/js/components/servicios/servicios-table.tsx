@@ -9,7 +9,12 @@ import {
     getSortedRowModel,
     useReactTable,
 } from '@tanstack/react-table';
-import { ArrowUpDown, ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
+import {
+    ArrowUpDown,
+    ChevronLeft,
+    ChevronRight,
+    MoreHorizontal,
+} from 'lucide-react';
 import { router } from '@inertiajs/react';
 import {
     AlertDialog,
@@ -41,9 +46,7 @@ import {
 } from '@/components/ui/table';
 import type { Servicio, ServiciosFilters } from '@/types/servicios';
 
-type DeleteTarget =
-    | { type: 'single'; servicio: Servicio }
-    | { type: 'bulk' };
+type DeleteTarget = { type: 'single'; servicio: Servicio } | { type: 'bulk' };
 
 interface ServiciosTableProps {
     servicios: Servicio[];
@@ -51,12 +54,24 @@ interface ServiciosTableProps {
     onEdit: (servicio: Servicio) => void;
 }
 
-export function ServiciosTable({ servicios, filters, onEdit }: ServiciosTableProps) {
-    const [sorting, setSorting] = React.useState<SortingState>([{ id: 'nombre', desc: false }]);
-    const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
+export function ServiciosTable({
+    servicios,
+    filters,
+    onEdit,
+}: ServiciosTableProps) {
+    const [sorting, setSorting] = React.useState<SortingState>([
+        { id: 'nombre', desc: false },
+    ]);
+    const [rowSelection, setRowSelection] = React.useState<RowSelectionState>(
+        {},
+    );
     const [allSelected, setAllSelected] = React.useState(false);
-    const [deleteTarget, setDeleteTarget] = React.useState<DeleteTarget | null>(null);
-    const [bulkToggleTarget, setBulkToggleTarget] = React.useState<boolean | null>(null);
+    const [deleteTarget, setDeleteTarget] = React.useState<DeleteTarget | null>(
+        null,
+    );
+    const [bulkToggleTarget, setBulkToggleTarget] = React.useState<
+        boolean | null
+    >(null);
 
     React.useEffect(() => {
         setRowSelection({});
@@ -93,13 +108,17 @@ export function ServiciosTable({ servicios, filters, onEdit }: ServiciosTablePro
                     variant="ghost"
                     size="sm"
                     className="-ml-2"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+                    onClick={() =>
+                        column.toggleSorting(column.getIsSorted() === 'asc')
+                    }
                 >
                     Nombre
                     <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
                 </Button>
             ),
-            cell: ({ row }) => <span className="font-medium">{row.original.nombre}</span>,
+            cell: ({ row }) => (
+                <span className="font-medium">{row.original.nombre}</span>
+            ),
         },
         {
             accessorKey: 'descripcion',
@@ -118,7 +137,9 @@ export function ServiciosTable({ servicios, filters, onEdit }: ServiciosTablePro
                     variant="ghost"
                     size="sm"
                     className="-ml-2"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+                    onClick={() =>
+                        column.toggleSorting(column.getIsSorted() === 'asc')
+                    }
                 >
                     Duración
                     <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
@@ -133,7 +154,9 @@ export function ServiciosTable({ servicios, filters, onEdit }: ServiciosTablePro
                     variant="ghost"
                     size="sm"
                     className="-ml-2"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+                    onClick={() =>
+                        column.toggleSorting(column.getIsSorted() === 'asc')
+                    }
                 >
                     Precio
                     <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
@@ -141,17 +164,23 @@ export function ServiciosTable({ servicios, filters, onEdit }: ServiciosTablePro
             ),
             cell: ({ row }) => (
                 <span className="font-semibold text-rose-600">
-                    ${parseFloat(row.original.precio).toLocaleString('es-CO', { minimumFractionDigits: 2 })}
+                    $
+                    {parseFloat(row.original.precio).toLocaleString('es-CO', {
+                        minimumFractionDigits: 2,
+                    })}
                 </span>
             ),
-            sortingFn: (a, b) => parseFloat(a.original.precio) - parseFloat(b.original.precio),
+            sortingFn: (a, b) =>
+                parseFloat(a.original.precio) - parseFloat(b.original.precio),
         },
         {
             accessorKey: 'activo',
             header: 'Estado',
             cell: ({ row }) =>
                 row.original.activo ? (
-                    <Badge className="bg-green-100 text-green-700 hover:bg-green-100">Activo</Badge>
+                    <Badge className="bg-green-100 text-green-700 hover:bg-green-100">
+                        Activo
+                    </Badge>
                 ) : (
                     <Badge variant="secondary">Inactivo</Badge>
                 ),
@@ -176,7 +205,12 @@ export function ServiciosTable({ servicios, filters, onEdit }: ServiciosTablePro
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEdit(s); }}>
+                            <DropdownMenuItem
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onEdit(s);
+                                }}
+                            >
                                 Editar
                             </DropdownMenuItem>
                             <DropdownMenuItem
@@ -196,7 +230,10 @@ export function ServiciosTable({ servicios, filters, onEdit }: ServiciosTablePro
                                 className="text-red-600 focus:text-red-600"
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    setDeleteTarget({ type: 'single', servicio: s });
+                                    setDeleteTarget({
+                                        type: 'single',
+                                        servicio: s,
+                                    });
                                 }}
                             >
                                 Eliminar
@@ -226,7 +263,9 @@ export function ServiciosTable({ servicios, filters, onEdit }: ServiciosTablePro
     const selectedIds = Object.keys(rowSelection).map(Number);
     const hasSelection = selectedIds.length > 0 || allSelected;
     const showSelectAll =
-        table.getIsAllPageRowsSelected() && servicios.length > table.getRowModel().rows.length && !allSelected;
+        table.getIsAllPageRowsSelected() &&
+        servicios.length > table.getRowModel().rows.length &&
+        !allSelected;
 
     function handleBulkToggle(activo: boolean) {
         setBulkToggleTarget(activo);
@@ -235,11 +274,19 @@ export function ServiciosTable({ servicios, filters, onEdit }: ServiciosTablePro
     function confirmBulkToggle() {
         if (bulkToggleTarget === null) return;
         const body = allSelected
-            ? { selectAll: true, activo: bulkToggleTarget, search: filters.search, activo_filter: filters.activo }
+            ? {
+                  selectAll: true,
+                  activo: bulkToggleTarget,
+                  search: filters.search,
+                  activo_filter: filters.activo,
+              }
             : { ids: selectedIds, activo: bulkToggleTarget };
         router.post('/admin/servicios/bulk-toggle', body, {
             preserveScroll: true,
-            onSuccess: () => { setRowSelection({}); setAllSelected(false); },
+            onSuccess: () => {
+                setRowSelection({});
+                setAllSelected(false);
+            },
         });
         setBulkToggleTarget(null);
     }
@@ -251,14 +298,23 @@ export function ServiciosTable({ servicios, filters, onEdit }: ServiciosTablePro
     function confirmDelete() {
         if (!deleteTarget) return;
         if (deleteTarget.type === 'single') {
-            router.delete(`/admin/servicios/${deleteTarget.servicio.id}`, { preserveScroll: true });
+            router.delete(`/admin/servicios/${deleteTarget.servicio.id}`, {
+                preserveScroll: true,
+            });
         } else {
             const body = allSelected
-                ? { selectAll: true, search: filters.search, activo: filters.activo }
+                ? {
+                      selectAll: true,
+                      search: filters.search,
+                      activo: filters.activo,
+                  }
                 : { ids: selectedIds };
             router.post('/admin/servicios/bulk-destroy', body, {
                 preserveScroll: true,
-                onSuccess: () => { setRowSelection({}); setAllSelected(false); },
+                onSuccess: () => {
+                    setRowSelection({});
+                    setAllSelected(false);
+                },
             });
         }
         setDeleteTarget(null);
@@ -270,7 +326,8 @@ export function ServiciosTable({ servicios, filters, onEdit }: ServiciosTablePro
             {hasSelection && (
                 <div className="flex flex-wrap items-center gap-2 rounded-md border bg-muted/40 px-4 py-2 text-sm">
                     <span className="text-muted-foreground">
-                        {allSelected ? servicios.length : selectedIds.length} seleccionado(s)
+                        {allSelected ? servicios.length : selectedIds.length}{' '}
+                        seleccionado(s)
                     </span>
                     {showSelectAll && (
                         <Button
@@ -283,10 +340,20 @@ export function ServiciosTable({ servicios, filters, onEdit }: ServiciosTablePro
                         </Button>
                     )}
                     <div className="ml-auto flex gap-2">
-                        <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => handleBulkToggle(true)}>
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 text-xs"
+                            onClick={() => handleBulkToggle(true)}
+                        >
                             Habilitar
                         </Button>
-                        <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => handleBulkToggle(false)}>
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 text-xs"
+                            onClick={() => handleBulkToggle(false)}
+                        >
                             Deshabilitar
                         </Button>
                         <Button
@@ -311,7 +378,11 @@ export function ServiciosTable({ servicios, filters, onEdit }: ServiciosTablePro
                                     <TableHead key={header.id}>
                                         {header.isPlaceholder
                                             ? null
-                                            : flexRender(header.column.columnDef.header, header.getContext())}
+                                            : flexRender(
+                                                  header.column.columnDef
+                                                      .header,
+                                                  header.getContext(),
+                                              )}
                                     </TableHead>
                                 ))}
                             </TableRow>
@@ -323,12 +394,19 @@ export function ServiciosTable({ servicios, filters, onEdit }: ServiciosTablePro
                                 <TableRow
                                     key={row.id}
                                     className="cursor-pointer"
-                                    data-state={row.getIsSelected() ? 'selected' : undefined}
+                                    data-state={
+                                        row.getIsSelected()
+                                            ? 'selected'
+                                            : undefined
+                                    }
                                     onClick={() => onEdit(row.original)}
                                 >
                                     {row.getVisibleCells().map((cell) => (
                                         <TableCell key={cell.id}>
-                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                            {flexRender(
+                                                cell.column.columnDef.cell,
+                                                cell.getContext(),
+                                            )}
                                         </TableCell>
                                     ))}
                                 </TableRow>
@@ -374,15 +452,27 @@ export function ServiciosTable({ servicios, filters, onEdit }: ServiciosTablePro
             </div>
 
             {/* Bulk toggle confirmation */}
-            <AlertDialog open={bulkToggleTarget !== null} onOpenChange={(v) => { if (!v) setBulkToggleTarget(null); }}>
+            <AlertDialog
+                open={bulkToggleTarget !== null}
+                onOpenChange={(v) => {
+                    if (!v) setBulkToggleTarget(null);
+                }}
+            >
                 <AlertDialogContent>
                     <AlertDialogHeader>
                         <AlertDialogTitle>
-                            ¿{bulkToggleTarget ? 'Habilitar' : 'Deshabilitar'} servicios?
+                            ¿{bulkToggleTarget ? 'Habilitar' : 'Deshabilitar'}{' '}
+                            servicios?
                         </AlertDialogTitle>
                         <AlertDialogDescription>
-                            Se {bulkToggleTarget ? 'habilitarán' : 'deshabilitarán'}{' '}
-                            {allSelected ? servicios.length : selectedIds.length} servicio(s) seleccionado(s).
+                            Se{' '}
+                            {bulkToggleTarget
+                                ? 'habilitarán'
+                                : 'deshabilitarán'}{' '}
+                            {allSelected
+                                ? servicios.length
+                                : selectedIds.length}{' '}
+                            servicio(s) seleccionado(s).
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -395,10 +485,17 @@ export function ServiciosTable({ servicios, filters, onEdit }: ServiciosTablePro
             </AlertDialog>
 
             {/* Delete confirmation */}
-            <AlertDialog open={deleteTarget !== null} onOpenChange={(v) => { if (!v) setDeleteTarget(null); }}>
+            <AlertDialog
+                open={deleteTarget !== null}
+                onOpenChange={(v) => {
+                    if (!v) setDeleteTarget(null);
+                }}
+            >
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>¿Eliminar servicio(s)?</AlertDialogTitle>
+                        <AlertDialogTitle>
+                            ¿Eliminar servicio(s)?
+                        </AlertDialogTitle>
                         <AlertDialogDescription>
                             {deleteTarget?.type === 'single'
                                 ? `Se eliminará "${deleteTarget.servicio.nombre}". Esta acción no se puede deshacer.`
@@ -407,7 +504,10 @@ export function ServiciosTable({ servicios, filters, onEdit }: ServiciosTablePro
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction variant="destructive" onClick={confirmDelete}>
+                        <AlertDialogAction
+                            variant="destructive"
+                            onClick={confirmDelete}
+                        >
                             Eliminar
                         </AlertDialogAction>
                     </AlertDialogFooter>

@@ -1,7 +1,13 @@
 import * as React from 'react';
 import { Head, router } from '@inertiajs/react';
-import { Plus } from 'lucide-react';
+import { Download, Plus, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
     Select,
     SelectContent,
@@ -10,6 +16,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
+import { ImportDialog } from '@/components/ui/import-dialog';
 import { ServiciosTable } from '@/components/servicios/servicios-table';
 import { ServicioSheet } from '@/components/servicios/servicio-sheet';
 import type { Servicio, ServiciosFilters } from '@/types/servicios';
@@ -22,6 +29,7 @@ interface Props {
 export default function AdminServiciosIndex({ servicios, filters }: Props) {
     const [search, setSearch] = React.useState(filters.search);
     const [activo, setActivo] = React.useState<ServiciosFilters['activo']>(filters.activo);
+    const [importOpen, setImportOpen] = React.useState(false);
     const [sheetOpen, setSheetOpen] = React.useState(false);
     const [sheetMode, setSheetMode] = React.useState<'create' | 'edit'>('create');
     const [editingServicio, setEditingServicio] = React.useState<Servicio | undefined>(undefined);
@@ -71,10 +79,46 @@ export default function AdminServiciosIndex({ servicios, filters }: Props) {
                             {servicios.length} servicio(s)
                         </p>
                     </div>
-                    <Button className="bg-rose-600 hover:bg-rose-700" onClick={openCreate}>
-                        <Plus className="mr-2 h-4 w-4" />
-                        Nuevo servicio
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="outline" size="sm">
+                                    <Download className="mr-1.5 h-4 w-4" />
+                                    Exportar
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem asChild>
+                                    <a
+                                        href={`/admin/servicios/export?format=xlsx&search=${encodeURIComponent(search)}&activo=${activo}`}
+                                    >
+                                        Excel (.xlsx)
+                                    </a>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem asChild>
+                                    <a
+                                        href={`/admin/servicios/export?format=csv&search=${encodeURIComponent(search)}&activo=${activo}`}
+                                    >
+                                        CSV (.csv)
+                                    </a>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setImportOpen(true)}
+                        >
+                            <Upload className="mr-1.5 h-4 w-4" />
+                            Importar
+                        </Button>
+
+                        <Button className="bg-rose-600 hover:bg-rose-700" onClick={openCreate}>
+                            <Plus className="mr-2 h-4 w-4" />
+                            Nuevo servicio
+                        </Button>
+                    </div>
                 </div>
 
                 {/* Filters */}
@@ -109,6 +153,21 @@ export default function AdminServiciosIndex({ servicios, filters }: Props) {
                 servicio={editingServicio}
                 open={sheetOpen}
                 onOpenChange={setSheetOpen}
+            />
+
+            <ImportDialog
+                open={importOpen}
+                onOpenChange={setImportOpen}
+                config={{
+                    title: 'Importar servicios',
+                    description: 'Sube un archivo Excel o CSV para crear servicios en masa.',
+                    templateUrl: '/admin/servicios/import/template',
+                    inputId: 'servicios-import-file',
+                    columnsHint: 'Columnas: nombre, precio, descripcion, duracion, activo (1/0)',
+                    previewUrl: '/admin/servicios/preview',
+                    revalidateUrl: '/admin/servicios/revalidate',
+                    importRowsUrl: '/admin/servicios/import-rows',
+                }}
             />
         </>
     );
