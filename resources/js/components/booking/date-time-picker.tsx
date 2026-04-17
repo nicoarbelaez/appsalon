@@ -83,8 +83,13 @@ export function DateTimePicker({
 
     const isOcupado = (hora: string) => {
         if (!selectedDate) return false;
+
         const dateStr = toDateString(selectedDate);
-        return ocupados.some((o) => o.fecha === dateStr && o.hora === hora);
+
+        return ocupados.some((o) => {
+            const fecha = o.fecha.slice(0, 10);
+            return fecha === dateStr && o.hora === hora;
+        });
     };
 
     const isPasado = (hora: string) => {
