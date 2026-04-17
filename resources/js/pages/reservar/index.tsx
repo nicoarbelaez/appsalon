@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 import { ServiceSelector } from '@/components/booking/service-selector';
 import { DateTimePicker } from '@/components/booking/date-time-picker';
+import { toDateString } from '@/lib/date';
 
 interface Servicio {
     id: number;
@@ -28,12 +29,7 @@ interface Props {
     ocupados: { fecha: string; hora: string }[];
 }
 
-function toDateString(date: Date): string {
-    const yyyy = date.getFullYear();
-    const mm = String(date.getMonth() + 1).padStart(2, '0');
-    const dd = String(date.getDate()).padStart(2, '0');
-    return `${yyyy}-${mm}-${dd}`;
-}
+
 
 export default function ReservarIndex({ servicios, ocupados }: Props) {
     const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(
@@ -50,8 +46,15 @@ export default function ReservarIndex({ servicios, ocupados }: Props) {
     });
 
     function handleDaySelect(day: Date | undefined) {
+        console.log('[index.tsx] day: ', day); // TODO: Remove
+        console.log('[index.tsx] BEFORE handleDaySelect (fecha): ', data.fecha); // TODO: Remove
+        console.log('[index.tsx] BEFORE handleDaySelect (hora): ', data.hora); // TODO: Remove
         setSelectedDate(day);
         setData('fecha', day ? toDateString(day) : '');
+        console.log("=========")
+        console.log('[index.tsx] selectedDate: ', selectedDate); // TODO: Remove
+        console.log('[index.tsx] AFTER handleDaySelect (fecha): ', data.fecha); // TODO: Remove
+        console.log('[index.tsx] AFTER handleDaySelect (hora): ', data.hora); // TODO: Remove
     }
 
     function toggleServicio(id: number) {
@@ -198,7 +201,13 @@ export default function ReservarIndex({ servicios, ocupados }: Props) {
                                 selectedTime={data.hora}
                                 ocupados={ocupados}
                                 onDateSelect={handleDaySelect}
-                                onTimeSelect={(h) => setData('hora', h)}
+                                onTimeSelect={(h) => {
+                                    console.log(
+                                        '[index.tsx] onTimeSelect (hora): ',
+                                        h,
+                                    ); // TODO: Remove
+                                    return setData('hora', h);
+                                }}
                                 errors={{
                                     fecha: errors.fecha,
                                     hora: errors.hora,

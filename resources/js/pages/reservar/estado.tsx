@@ -1,9 +1,15 @@
 import * as React from 'react';
 import { Head } from '@inertiajs/react';
-import { format, parseISO } from 'date-fns';
-import { es } from 'date-fns/locale';
 import { toast } from 'sonner';
-import { CalendarDays, CheckCircle2, Clock, MessageCircle, Scissors, XCircle } from 'lucide-react';
+import { formatFecha, formatHora } from '@/lib/date';
+import {
+    CalendarDays,
+    CheckCircle2,
+    Clock,
+    MessageCircle,
+    Scissors,
+    XCircle,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -30,7 +36,10 @@ interface Props {
     token: string;
 }
 
-const estadoConfig: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
+const estadoConfig: Record<
+    string,
+    { label: string; color: string; icon: React.ReactNode }
+> = {
     pendiente: {
         label: 'Pendiente de confirmación',
         color: 'text-yellow-600 bg-yellow-50 border-yellow-200',
@@ -53,33 +62,21 @@ const estadoConfig: Record<string, { label: string; color: string; icon: React.R
     },
 };
 
-function formatFecha(fecha: string) {
-    try {
-        return format(parseISO(fecha), "eeee, d 'de' MMMM 'de' yyyy", { locale: es });
-    } catch (e) {
-        return fecha;
-    }
-}
 
-function formatHora(hora: string) {
-    try {
-        const [h, m] = hora.split(':');
-        return `${h}:${m}`;
-    } catch (e) {
-        return hora;
-    }
-}
 
 export default function ReservarEstado({ cita, token }: Props) {
     const config = estadoConfig[cita.estado] ?? estadoConfig.pendiente;
-    const statusUrl = typeof window !== 'undefined' ? `${window.location.origin}/reservar/estado/${token}` : '';
+    const statusUrl =
+        typeof window !== 'undefined'
+            ? `${window.location.origin}/reservar/estado/${token}`
+            : '';
 
     function copyStatusLink() {
         if (navigator.clipboard) {
             navigator.clipboard.writeText(statusUrl);
             toast.success('Link de estado copiado');
         } else {
-            const textArea = document.createElement("textarea");
+            const textArea = document.createElement('textarea');
             textArea.value = statusUrl;
             document.body.appendChild(textArea);
             textArea.select();
@@ -90,7 +87,9 @@ export default function ReservarEstado({ cita, token }: Props) {
     }
 
     function compartirWhatsApp() {
-        const serviciosList = cita.servicios.map((s) => `• ${s.nombre}`).join('\n');
+        const serviciosList = cita.servicios
+            .map((s) => `• ${s.nombre}`)
+            .join('\n');
         const mensaje =
             `¡Hola! Aquí están los datos de mi cita en AppSalon:\n\n` +
             `📅 Fecha: ${formatFecha(cita.fecha)}\n` +
@@ -117,7 +116,10 @@ export default function ReservarEstado({ cita, token }: Props) {
                             App<span className="text-rose-600">Salon</span>
                         </span>
                     </a>
-                    <a href="/reservar" className="text-sm text-gray-500 hover:text-rose-600">
+                    <a
+                        href="/reservar"
+                        className="text-sm text-gray-500 hover:text-rose-600"
+                    >
                         Nueva reserva
                     </a>
                 </div>
@@ -133,29 +135,32 @@ export default function ReservarEstado({ cita, token }: Props) {
                         ¡Reserva recibida!
                     </h1>
                     <p className="mt-2 text-gray-500">
-                        Guarda tu código de seguimiento para consultar el estado de tu cita.
+                        Guarda tu código de seguimiento para consultar el estado
+                        de tu cita.
                     </p>
                 </div>
 
                 {/* Token card */}
                 <Card className="mb-6 border-rose-100 bg-rose-50 dark:border-rose-900 dark:bg-rose-900/10">
                     <CardContent className="py-4 text-center">
-                        <p className="mb-1 text-xs font-medium uppercase tracking-widest text-rose-600">
+                        <p className="mb-1 text-xs font-medium tracking-widest text-rose-600 uppercase">
                             Código de seguimiento
                         </p>
-                        <p className="font-mono text-sm font-bold text-rose-700 break-all dark:text-rose-400">
+                        <p className="font-mono text-sm font-bold break-all text-rose-700 dark:text-rose-400">
                             {token}
                         </p>
                         <div className="mt-3 flex flex-col items-center gap-2">
-                             <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                className="h-auto py-1.5 text-rose-600 hover:text-rose-700 hover:bg-rose-100/50"
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-auto py-1.5 text-rose-600 hover:bg-rose-100/50 hover:text-rose-700"
                                 onClick={copyStatusLink}
                             >
-                                <span className="text-xs">Copiar link de seguimiento</span>
+                                <span className="text-xs">
+                                    Copiar link de seguimiento
+                                </span>
                             </Button>
-                            <p className="text-[10px] text-gray-500 max-w-[200px] truncate">
+                            <p className="max-w-[200px] truncate text-[10px] text-gray-500">
                                 {statusUrl}
                             </p>
                         </div>
@@ -165,11 +170,17 @@ export default function ReservarEstado({ cita, token }: Props) {
                 <div className="flex flex-col gap-4">
                     {/* Status */}
                     <Card>
-                        <CardContent className={`flex items-center gap-3 rounded-lg border py-4 ${config.color}`}>
+                        <CardContent
+                            className={`flex items-center gap-3 rounded-lg border py-4 ${config.color}`}
+                        >
                             {config.icon}
                             <div>
-                                <p className="text-sm font-semibold">Estado actual</p>
-                                <p className="text-sm capitalize">{config.label}</p>
+                                <p className="text-sm font-semibold">
+                                    Estado actual
+                                </p>
+                                <p className="text-sm capitalize">
+                                    {config.label}
+                                </p>
                             </div>
                         </CardContent>
                     </Card>
@@ -185,24 +196,36 @@ export default function ReservarEstado({ cita, token }: Props) {
                         <CardContent className="space-y-3 text-sm">
                             <div className="flex justify-between">
                                 <span className="text-gray-500">Cliente</span>
-                                <span className="font-medium">{cita.nombre_invitado}</span>
+                                <span className="font-medium">
+                                    {cita.nombre_invitado}
+                                </span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-gray-500">Fecha</span>
-                                <span className="font-medium capitalize">{formatFecha(cita.fecha)}</span>
+                                <span className="font-medium capitalize">
+                                    {formatFecha(cita.fecha)}
+                                </span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-gray-500">Hora</span>
-                                <span className="font-medium">{formatHora(cita.hora)}</span>
+                                <span className="font-medium">
+                                    {formatHora(cita.hora)}
+                                </span>
                             </div>
                             <div className="border-t pt-3">
                                 <p className="mb-2 text-gray-500">Servicios</p>
                                 <ul className="space-y-1">
                                     {cita.servicios.map((s) => (
-                                        <li key={s.id} className="flex justify-between">
+                                        <li
+                                            key={s.id}
+                                            className="flex justify-between"
+                                        >
                                             <span>{s.nombre}</span>
                                             <span className="font-medium text-rose-600">
-                                                ${parseFloat(s.precio).toFixed(2)}
+                                                $
+                                                {parseFloat(s.precio).toFixed(
+                                                    2,
+                                                )}
                                             </span>
                                         </li>
                                     ))}
@@ -221,7 +244,7 @@ export default function ReservarEstado({ cita, token }: Props) {
                     <div className="flex flex-col gap-3 sm:flex-row">
                         <Button
                             onClick={compartirWhatsApp}
-                            className="flex-1 bg-[#25D366] hover:bg-[#1ebe5d] text-white"
+                            className="flex-1 bg-[#25D366] text-white hover:bg-[#1ebe5d]"
                         >
                             <MessageCircle className="mr-2 h-4 w-4" />
                             Compartir por WhatsApp
