@@ -60,7 +60,6 @@ function formatTime(hora: string) {
     });
 }
 
-
 export function DateTimePicker({
     selectedDate,
     selectedTime,
@@ -69,11 +68,11 @@ export function DateTimePicker({
     onTimeSelect,
     errors,
 }: DateTimePickerProps) {
+    console.log(ocupados);
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
 
     const handleDateChange = (date: Date | undefined) => {
-        console.log('[date-time-picker.tsx] handleDateChange (fecha): ', date); // TODO: Remove
         onDateSelect(date);
         if (date) {
             router.reload({
@@ -179,13 +178,7 @@ export function DateTimePicker({
                                 key={h}
                                 type="button"
                                 disabled={disabled}
-                                onClick={() => {
-                                    console.log(
-                                        '[date-time-picker.tsx] onTimeSelect (hora): ',
-                                        h,
-                                    ); // TODO: Remove
-                                    return onTimeSelect(h);
-                                }}
+                                onClick={() => onTimeSelect(h)}
                                 className={cn(
                                     'relative rounded-md border py-2 text-xs font-semibold transition-all duration-200',
                                     stateStyles,

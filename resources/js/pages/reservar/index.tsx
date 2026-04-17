@@ -29,8 +29,6 @@ interface Props {
     ocupados: { fecha: string; hora: string }[];
 }
 
-
-
 export default function ReservarIndex({ servicios, ocupados }: Props) {
     const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(
         undefined,
@@ -51,7 +49,7 @@ export default function ReservarIndex({ servicios, ocupados }: Props) {
         console.log('[index.tsx] BEFORE handleDaySelect (hora): ', data.hora); // TODO: Remove
         setSelectedDate(day);
         setData('fecha', day ? toDateString(day) : '');
-        console.log("=========")
+        console.log('=========');
         console.log('[index.tsx] selectedDate: ', selectedDate); // TODO: Remove
         console.log('[index.tsx] AFTER handleDaySelect (fecha): ', data.fecha); // TODO: Remove
         console.log('[index.tsx] AFTER handleDaySelect (hora): ', data.hora); // TODO: Remove
@@ -201,13 +199,7 @@ export default function ReservarIndex({ servicios, ocupados }: Props) {
                                 selectedTime={data.hora}
                                 ocupados={ocupados}
                                 onDateSelect={handleDaySelect}
-                                onTimeSelect={(h) => {
-                                    console.log(
-                                        '[index.tsx] onTimeSelect (hora): ',
-                                        h,
-                                    ); // TODO: Remove
-                                    return setData('hora', h);
-                                }}
+                                onTimeSelect={(h) => setData('hora', h)}
                                 errors={{
                                     fecha: errors.fecha,
                                     hora: errors.hora,
