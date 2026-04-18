@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cita;
+use App\Models\Horario;
 use App\Models\Servicio;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -27,6 +28,7 @@ class CitaController extends Controller
             'citas'    => $citas,
             'servicios' => Servicio::where('activo', true)->orderBy('nombre')->get(),
             'ocupados' => $ocupados,
+            'horarios' => Horario::orderBy('dia_semana')->get(),
         ]);
     }
 
@@ -57,6 +59,12 @@ class CitaController extends Controller
             'servicios' => 'required|array|min:1',
             'servicios.*' => 'integer|exists:servicios,id',
         ]);
+
+        if (! Horario::isValidSlot($validated['fecha'], $validated['hora'])) {
+            return back()->withErrors([
+                'hora' => 'Ese horario está fuera del horario de atención del salón.',
+            ])->withInput();
+        }
 
         $ocupado = Cita::where('fecha', $validated['fecha'])
             ->where('hora', $validated['hora'] . ':00')

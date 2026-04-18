@@ -8,14 +8,16 @@ import { DetailSheet } from '@/components/citas/detail-sheet';
 import { NuevaCitaSheet } from '@/components/citas/nueva-cita-sheet';
 import { dashboard } from '@/routes';
 import type { BusySlot, Cita, Servicio } from '@/types/citas';
+import type { Horario } from '@/types/horarios';
 
 interface Props {
     citas: Cita[];
     servicios: Servicio[];
     ocupados: BusySlot[];
+    horarios: Horario[];
 }
 
-export default function CitasIndex({ citas, servicios, ocupados }: Props) {
+export default function CitasIndex({ citas, servicios, ocupados, horarios }: Props) {
     const [selectedCita, setSelectedCita] = React.useState<Cita | null>(null);
     const [detailOpen, setDetailOpen] = React.useState(false);
     const [nuevaOpen, setNuevaOpen] = React.useState(false);
@@ -63,6 +65,7 @@ export default function CitasIndex({ citas, servicios, ocupados }: Props) {
                 mode="mis-citas"
                 servicios={servicios}
                 ocupados={ocupados}
+                horarios={horarios}
             />
         </>
     );

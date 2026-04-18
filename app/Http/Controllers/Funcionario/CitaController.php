@@ -7,6 +7,7 @@ use App\Exports\CitasTemplateExport;
 use App\Http\Controllers\Controller;
 use App\Imports\CitasImport;
 use App\Models\Cita;
+use App\Models\Horario;
 use App\Models\Servicio;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -39,6 +40,7 @@ class CitaController extends Controller
             'citas'    => $citas,
             'servicios' => Servicio::where('activo', true)->orderBy('nombre')->get(),
             'ocupados' => $ocupados,
+            'horarios' => Horario::orderBy('dia_semana')->get(),
             'usuarios' => User::orderBy('nombre')->get(['id', 'nombre', 'apellido', 'telefono']),
         ]);
     }
@@ -53,6 +55,10 @@ class CitaController extends Controller
             'usuarioId'      => ['nullable', 'integer', 'exists:usuarios,id'],
             'nombre_invitado' => ['nullable', 'string', 'max:120'],
         ]);
+
+        if (! Horario::isValidSlot($data['fecha'], $data['hora'])) {
+            return back()->withErrors(['hora' => 'Ese horario está fuera del horario de atención del salón.']);
+        }
 
         $ocupado = Cita::where('fecha', $data['fecha'])
             ->where('hora', $data['hora'] . ':00')

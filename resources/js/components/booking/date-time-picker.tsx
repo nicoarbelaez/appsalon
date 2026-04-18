@@ -11,6 +11,7 @@ import {
 import { cn } from '@/lib/utils';
 import { router } from '@inertiajs/react';
 import { toDateString } from '@/lib/date';
+import type { Horario } from '@/types/horarios';
 
 interface BusySlot {
     fecha: string;
@@ -28,13 +29,32 @@ interface DateTimePickerProps {
         hora?: string;
     };
     preserveState?: boolean;
+    horarios?: Horario[];
 }
 
-const HORARIOS = [
+// Fallback hardcoded slots used when horarios are not provided
+const HORARIOS_DEFAULT = [
     '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
     '12:00', '12:30', '13:00', '13:30', '14:00', '14:30',
     '15:00', '15:30', '16:00', '16:30', '17:00', '17:30',
 ];
+
+function generateSlots(tramos: Horario['tramos']): string[] {
+    const slots: string[] = [];
+    for (const tramo of tramos) {
+        const [sh, sm] = tramo.inicio.split(':').map(Number);
+        const [eh, em] = tramo.fin.split(':').map(Number);
+        let cur = sh * 60 + sm;
+        const end = eh * 60 + em;
+        while (cur < end) {
+            const h = String(Math.floor(cur / 60)).padStart(2, '0');
+            const m = String(cur % 60).padStart(2, '0');
+            slots.push(`${h}:${m}`);
+            cur += 30;
+        }
+    }
+    return slots;
+}
 
 function formatTime(hora: string) {
     const [h, m] = hora.split(':');
@@ -51,6 +71,7 @@ export function DateTimePicker({
     onTimeSelect,
     errors,
     preserveState = false,
+    horarios,
 }: DateTimePickerProps) {
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
@@ -65,6 +86,16 @@ export function DateTimePicker({
             }
         }
     };
+
+    // Compute available slots for the selected date
+    const slotsForDay = React.useMemo(() => {
+        if (!horarios) return HORARIOS_DEFAULT;
+        if (!selectedDate) return [];
+        const dia = selectedDate.getDay(); // 0=Sunday
+        const horario = horarios.find((h) => h.dia_semana === dia);
+        if (!horario || !horario.activo) return [];
+        return generateSlots(horario.tramos);
+    }, [horarios, selectedDate]);
 
     const isOcupado = (hora: string) => {
         if (!selectedDate) return false;
@@ -81,6 +112,21 @@ export function DateTimePicker({
         horaCita.setHours(parseInt(h), parseInt(m), 0, 0);
         return horaCita < now;
     };
+
+    // Disable days in calendar that are not work days
+    const calendarDisabled = React.useMemo(() => {
+        const matchers: Array<{ before: Date } | ((d: Date) => boolean)> = [
+            { before: hoy },
+        ];
+        if (horarios) {
+            matchers.push((date: Date) => {
+                const dia = date.getDay();
+                const h = horarios.find((h) => h.dia_semana === dia);
+                return !h || !h.activo;
+            });
+        }
+        return matchers;
+    }, [horarios]);
 
     return (
         <div className="flex flex-col gap-4">
@@ -111,7 +157,7 @@ export function DateTimePicker({
                             mode="single"
                             selected={selectedDate}
                             onSelect={handleDateChange}
-                            disabled={{ before: hoy }}
+                            disabled={calendarDisabled}
                             initialFocus
                         />
                     </PopoverContent>
@@ -127,57 +173,64 @@ export function DateTimePicker({
                         Selecciona una fecha primero para ver horarios
                     </p>
                 )}
-                <div className="grid gap-2 [grid-template-columns:repeat(auto-fill,minmax(4.5rem,1fr))]">
-                    {HORARIOS.map((h) => {
-                        const ocupado = isOcupado(h);
-                        const pasado = isPasado(h);
-                        const selected = selectedTime === h;
+                {selectedDate && slotsForDay.length === 0 && (
+                    <p className="text-sm font-medium text-gray-400 italic">
+                        El salón no trabaja ese día
+                    </p>
+                )}
+                {slotsForDay.length > 0 && (
+                    <div className="grid gap-2 grid-cols-[repeat(auto-fill,minmax(4.5rem,1fr))]">
+                        {slotsForDay.map((h) => {
+                            const ocupado = isOcupado(h);
+                            const pasado = isPasado(h);
+                            const selected = selectedTime === h;
 
-                        let stateStyles =
-                            'border-gray-100 hover:border-rose-300 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-900';
-                        let textColor = 'text-gray-900 dark:text-gray-100';
-                        let disabled = !selectedDate;
+                            let stateStyles =
+                                'border-gray-100 hover:border-rose-300 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-900';
+                            let textColor = 'text-gray-900 dark:text-gray-100';
+                            let disabled = false;
 
-                        if (selected) {
-                            stateStyles = 'border-rose-500 bg-rose-600 shadow-md';
-                            textColor = 'text-white';
-                        } else if (ocupado) {
-                            stateStyles =
-                                'border-rose-100 bg-rose-50/50 cursor-not-allowed dark:border-rose-900/30 dark:bg-rose-900/10';
-                            textColor = 'text-rose-300 dark:text-rose-800';
-                            disabled = true;
-                        } else if (pasado) {
-                            stateStyles =
-                                'border-gray-50 bg-gray-50/30 cursor-not-allowed opacity-50 dark:border-gray-900 dark:bg-gray-900/40';
-                            textColor = 'text-gray-300 dark:text-gray-700';
-                            disabled = true;
-                        }
+                            if (selected) {
+                                stateStyles = 'border-rose-500 bg-rose-600 shadow-md';
+                                textColor = 'text-white';
+                            } else if (ocupado) {
+                                stateStyles =
+                                    'border-rose-100 bg-rose-50/50 cursor-not-allowed dark:border-rose-900/30 dark:bg-rose-900/10';
+                                textColor = 'text-rose-300 dark:text-rose-800';
+                                disabled = true;
+                            } else if (pasado) {
+                                stateStyles =
+                                    'border-gray-50 bg-gray-50/30 cursor-not-allowed opacity-50 dark:border-gray-900 dark:bg-gray-900/40';
+                                textColor = 'text-gray-300 dark:text-gray-700';
+                                disabled = true;
+                            }
 
-                        return (
-                            <button
-                                key={h}
-                                type="button"
-                                disabled={disabled}
-                                onClick={() => onTimeSelect(h)}
-                                className={cn(
-                                    'relative rounded-md border py-2 text-xs font-semibold transition-all duration-200',
-                                    stateStyles,
-                                    textColor,
-                                    pasado && 'line-through',
-                                )}
-                                title={ocupado ? 'Ocupado' : pasado ? 'Ya pasó esta hora' : ''}
-                            >
-                                {formatTime(h)}
-                                {ocupado && (
-                                    <span className="absolute -top-1 -right-1 flex h-2 w-2">
-                                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75" />
-                                        <span className="relative inline-flex h-2 w-2 rounded-full bg-rose-500" />
-                                    </span>
-                                )}
-                            </button>
-                        );
-                    })}
-                </div>
+                            return (
+                                <button
+                                    key={h}
+                                    type="button"
+                                    disabled={disabled}
+                                    onClick={() => onTimeSelect(h)}
+                                    className={cn(
+                                        'relative rounded-md border py-2 text-xs font-semibold transition-all duration-200',
+                                        stateStyles,
+                                        textColor,
+                                        pasado && 'line-through',
+                                    )}
+                                    title={ocupado ? 'Ocupado' : pasado ? 'Ya pasó esta hora' : ''}
+                                >
+                                    {formatTime(h)}
+                                    {ocupado && (
+                                        <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75" />
+                                            <span className="relative inline-flex h-2 w-2 rounded-full bg-rose-500" />
+                                        </span>
+                                    )}
+                                </button>
+                            );
+                        })}
+                    </div>
+                )}
             </div>
         </div>
     );

@@ -31,6 +31,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { toDateString } from '@/lib/date';
 import type { BusySlot, Servicio, Usuario } from '@/types/citas';
+import type { Horario } from '@/types/horarios';
 
 // ─── User Combobox ────────────────────────────────────────────────────────────
 
@@ -102,6 +103,7 @@ interface NuevaCitaSheetProps {
     servicios: Servicio[];
     ocupados: BusySlot[];
     usuarios?: Usuario[];
+    horarios?: Horario[];
 }
 
 export function NuevaCitaSheet({
@@ -111,6 +113,7 @@ export function NuevaCitaSheet({
     servicios,
     ocupados,
     usuarios = [],
+    horarios,
 }: NuevaCitaSheetProps) {
     const [selectedUsuarioId, setSelectedUsuarioId] = React.useState<number | null>(null);
     const [nombreInvitado, setNombreInvitado] = React.useState('');
@@ -226,6 +229,7 @@ export function NuevaCitaSheet({
                         onTimeSelect={setSelectedTime}
                         errors={{ fecha: errors.fecha, hora: errors.hora }}
                         preserveState
+                        horarios={horarios}
                     />
 
                     <Separator />

@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 import { ServiceSelector } from '@/components/booking/service-selector';
 import { DateTimePicker } from '@/components/booking/date-time-picker';
 import { toDateString } from '@/lib/date';
+import type { Horario } from '@/types/horarios';
 
 interface Servicio {
     id: number;
@@ -27,9 +28,10 @@ interface Servicio {
 interface Props {
     servicios: Servicio[];
     ocupados: { fecha: string; hora: string }[];
+    horarios: Horario[];
 }
 
-export default function ReservarIndex({ servicios, ocupados }: Props) {
+export default function ReservarIndex({ servicios, ocupados, horarios }: Props) {
     const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(
         undefined,
     );
@@ -197,6 +199,7 @@ export default function ReservarIndex({ servicios, ocupados }: Props) {
                                     fecha: errors.fecha,
                                     hora: errors.hora,
                                 }}
+                                horarios={horarios}
                             />
                         </CardContent>
                     </Card>

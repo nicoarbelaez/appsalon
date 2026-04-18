@@ -14,12 +14,14 @@ import { DetailSheet } from '@/components/citas/detail-sheet';
 import { NuevaCitaSheet } from '@/components/citas/nueva-cita-sheet';
 import { dashboard } from '@/routes';
 import type { BusySlot, Cita, Servicio, Usuario } from '@/types/citas';
+import type { Horario } from '@/types/horarios';
 
 interface Props {
     citas: Cita[];
     servicios: Servicio[];
     ocupados: BusySlot[];
     usuarios: Usuario[];
+    horarios: Horario[];
 }
 
 export default function AgendaCitas({
@@ -27,6 +29,7 @@ export default function AgendaCitas({
     servicios,
     ocupados,
     usuarios,
+    horarios,
 }: Props) {
     const [selectedCita, setSelectedCita] = React.useState<Cita | null>(null);
     const [detailOpen, setDetailOpen] = React.useState(false);
@@ -134,6 +137,7 @@ export default function AgendaCitas({
                 servicios={servicios}
                 ocupados={ocupados}
                 usuarios={usuarios}
+                horarios={horarios}
             />
         </>
     );
