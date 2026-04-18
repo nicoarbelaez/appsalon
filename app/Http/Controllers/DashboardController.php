@@ -33,23 +33,25 @@ class DashboardController extends Controller
         [$desde, $hasta, $servicioId] = $this->parseFiltros($request);
 
         $stats = [
-            'citasHoy'       => Cita::whereDate('fecha', today())->count(),
-            'citasTotal'     => Cita::count(),
-            'totalClientes'  => User::where('rol', 'cliente')->count(),
+            'citasHoy' => Cita::whereDate('fecha', today())->count(),
+            'citasTotal' => Cita::count(),
+            'totalClientes' => User::where('rol', 'cliente')->count(),
             'totalServicios' => Servicio::where('activo', true)->count(),
-            'ingresos'       => (string) Cita::whereBetween('fecha', [$desde, $hasta])
-                ->whereIn('estado', ['completada', 'confirmada'])
-                ->sum('total'),
+            'ingresos' => $desde && $hasta
+                ? (string) Cita::whereBetween('fecha', [$desde, $hasta])
+                    ->whereIn('estado', ['completada', 'confirmada'])
+                    ->sum('total')
+                : '0',
         ];
 
         return Inertia::render('admin/dashboard', [
-            'stats'            => $stats,
-            'citasPorDia'      => $this->getCitasPorDia($desde, $hasta),
-            'citasPorServicio' => $this->getCitasPorServicio($desde, $hasta, $servicioId),
-            'citasHoyDetalle'  => $this->getCitasHoy(),
-            'servicios'        => Servicio::where('activo', true)->select('id', 'nombre')->orderBy('nombre')->get(),
-            'filtros'          => compact('desde', 'hasta', 'servicioId'),
-            'config'           => ['showIngresos' => true],
+            'stats' => $stats,
+            'citasPorDia' => $desde && $hasta ? $this->getCitasPorDia($desde, $hasta) : collect(),
+            'citasPorServicio' => $desde && $hasta ? $this->getCitasPorServicio($desde, $hasta, $servicioId) : collect(),
+            'citasHoyDetalle' => $this->getCitasHoy(),
+            'servicios' => Servicio::where('activo', true)->select('id', 'nombre')->orderBy('nombre')->get(),
+            'filtros' => compact('desde', 'hasta', 'servicioId'),
+            'config' => ['showIngresos' => true],
         ]);
     }
 
@@ -60,20 +62,20 @@ class DashboardController extends Controller
         [$desde, $hasta, $servicioId] = $this->parseFiltros($request);
 
         $stats = [
-            'citasHoy'       => Cita::whereDate('fecha', today())->count(),
-            'citasTotal'     => Cita::count(),
-            'totalClientes'  => User::where('rol', 'cliente')->count(),
+            'citasHoy' => Cita::whereDate('fecha', today())->count(),
+            'citasTotal' => Cita::count(),
+            'totalClientes' => User::where('rol', 'cliente')->count(),
             'totalServicios' => Servicio::where('activo', true)->count(),
         ];
 
         return Inertia::render('funcionario/dashboard', [
-            'stats'            => $stats,
-            'citasPorDia'      => $this->getCitasPorDia($desde, $hasta),
-            'citasPorServicio' => $this->getCitasPorServicio($desde, $hasta, $servicioId),
-            'citasHoyDetalle'  => $this->getCitasHoy(),
-            'servicios'        => Servicio::where('activo', true)->select('id', 'nombre')->orderBy('nombre')->get(),
-            'filtros'          => compact('desde', 'hasta', 'servicioId'),
-            'config'           => ['showIngresos' => false],
+            'stats' => $stats,
+            'citasPorDia' => $desde && $hasta ? $this->getCitasPorDia($desde, $hasta) : collect(),
+            'citasPorServicio' => $desde && $hasta ? $this->getCitasPorServicio($desde, $hasta, $servicioId) : collect(),
+            'citasHoyDetalle' => $this->getCitasHoy(),
+            'servicios' => Servicio::where('activo', true)->select('id', 'nombre')->orderBy('nombre')->get(),
+            'filtros' => compact('desde', 'hasta', 'servicioId'),
+            'config' => ['showIngresos' => false],
         ]);
     }
 
@@ -81,8 +83,8 @@ class DashboardController extends Controller
 
     private function clienteDashboard(Request $request): Response
     {
-        $userId  = $request->user()->id;
-        $hoy     = today()->toDateString();
+        $userId = $request->user()->id;
+        $hoy = today()->toDateString();
 
         $misCitas = Cita::where('usuarioId', $userId)
             ->with(['servicios:id,nombre,precio,duracion'])
@@ -98,8 +100,8 @@ class DashboardController extends Controller
             ->first();
 
         $stats = [
-            'totalCitas'       => $misCitas->count(),
-            'citasPendientes'  => $misCitas->whereIn('estado', ['pendiente', 'confirmada'])->count(),
+            'totalCitas' => $misCitas->count(),
+            'citasPendientes' => $misCitas->whereIn('estado', ['pendiente', 'confirmada'])->count(),
             'citasCompletadas' => $misCitas->where('estado', 'completada')->count(),
         ];
 
@@ -110,12 +112,18 @@ class DashboardController extends Controller
 
     private function parseFiltros(Request $request): array
     {
-        $desde     = $request->query('fecha_desde', Carbon::now()->startOfMonth()->toDateString());
-        $hasta     = $request->query('fecha_hasta', Carbon::now()->toDateString());
+        if (!$request->has('fecha_desde')) {
+            // First load — default to last 7 days
+            $desde = Carbon::now()->subDays(6)->toDateString();
+            $hasta = Carbon::now()->toDateString();
+        } else {
+            // User explicitly set or cleared the range
+            $desde = $request->query('fecha_desde') ?: null;
+            $hasta = $request->query('fecha_hasta') ?: null;
+        }
         $servicioId = $request->query('servicio_id') ? (int) $request->query('servicio_id') : null;
 
-        // Sanitize: ensure desde <= hasta
-        if ($desde > $hasta) {
+        if ($desde && $hasta && $desde > $hasta) {
             $desde = $hasta;
         }
 
@@ -130,7 +138,7 @@ class DashboardController extends Controller
             ->groupBy('dia')
             ->orderBy('dia')
             ->get()
-            ->map(fn ($r) => ['dia' => $r->dia, 'total' => (float) $r->total]);
+            ->map(fn($r) => ['dia' => $r->dia, 'total' => (float) $r->total]);
     }
 
     private function getCitasPorServicio(string $desde, string $hasta, ?int $servicioId): \Illuminate\Support\Collection
@@ -140,12 +148,12 @@ class DashboardController extends Controller
             ->join('citas', 'citas.id', '=', 'citasServicios.citaId')
             ->whereBetween('citas.fecha', [$desde, $hasta])
             ->whereIn('citas.estado', ['completada', 'confirmada'])
-            ->when($servicioId, fn ($q) => $q->where('servicios.id', $servicioId))
+            ->when($servicioId, fn($q) => $q->where('servicios.id', $servicioId))
             ->selectRaw('DATE(citas.fecha) as dia, servicios.nombre as servicio, SUM(servicios.precio) as total')
             ->groupBy('dia', 'servicio')
             ->orderBy('dia')
             ->get()
-            ->map(fn ($r) => ['dia' => $r->dia, 'servicio' => $r->servicio, 'total' => (float) $r->total]);
+            ->map(fn($r) => ['dia' => $r->dia, 'servicio' => $r->servicio, 'total' => (float) $r->total]);
     }
 
     private function getCitasHoy(): \Illuminate\Database\Eloquent\Collection

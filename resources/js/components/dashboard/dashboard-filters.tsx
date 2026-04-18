@@ -26,15 +26,19 @@ export function DashboardFilters({
     const dateRange: DateRange | undefined =
         filtros.desde || filtros.hasta
             ? {
-                  from: filtros.desde ? new Date(filtros.desde + 'T00:00:00') : undefined,
-                  to: filtros.hasta ? new Date(filtros.hasta + 'T00:00:00') : undefined,
+                  from: filtros.desde
+                      ? new Date(filtros.desde + 'T00:00:00')
+                      : undefined,
+                  to: filtros.hasta
+                      ? new Date(filtros.hasta + 'T00:00:00')
+                      : undefined,
               }
             : undefined;
 
     function handleDateRange(range: DateRange | undefined) {
         onFiltrosChange({
-            desde: range?.from ? toDateString(range.from) : '',
-            hasta: range?.to ? toDateString(range.to) : '',
+            desde: range?.from ? toDateString(range.from) : null,
+            hasta: range?.to ? toDateString(range.to) : null,
         });
     }
 
@@ -49,7 +53,11 @@ export function DashboardFilters({
 
             {showServicioFilter && (
                 <Select
-                    value={filtros.servicioId ? String(filtros.servicioId) : 'todos'}
+                    value={
+                        filtros.servicioId
+                            ? String(filtros.servicioId)
+                            : 'todos'
+                    }
                     onValueChange={(v) =>
                         onFiltrosChange({
                             servicioId: v === 'todos' ? null : Number(v),
@@ -60,7 +68,9 @@ export function DashboardFilters({
                         <SelectValue placeholder="Todos los servicios" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="todos">Todos los servicios</SelectItem>
+                        <SelectItem value="todos">
+                            Todos los servicios
+                        </SelectItem>
                         {servicios.map((s) => (
                             <SelectItem key={s.id} value={String(s.id)}>
                                 {s.nombre}

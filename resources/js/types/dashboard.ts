@@ -30,7 +30,7 @@ export interface ClienteStats {
 // ─── Chart data ───────────────────────────────────────────────────────────────
 
 export interface CitasPorDiaItem {
-    dia: string;    // 'YYYY-MM-DD'
+    dia: string; // 'YYYY-MM-DD'
     total: number;
 }
 
@@ -48,8 +48,8 @@ export interface CitasPorServicioPivot {
 // ─── Filters ──────────────────────────────────────────────────────────────────
 
 export interface DashboardFiltros {
-    desde: string;              // 'YYYY-MM-DD'
-    hasta: string;              // 'YYYY-MM-DD'
+    desde: string | null;
+    hasta: string | null;
     servicioId: number | null;
 }
 
