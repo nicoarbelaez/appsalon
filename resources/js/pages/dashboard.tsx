@@ -2,19 +2,30 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import { CalendarDays, CheckCircle2, Clock3, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { NextAppointmentCard } from '@/components/dashboard/next-appointment-card';
 import { StatCard } from '@/components/dashboard/stat-card';
 import { CitasTable } from '@/components/citas/citas-table';
 import { dashboard } from '@/routes';
 import type { ClienteDashboardProps } from '@/types/dashboard';
 import type { Cita } from '@/types/citas';
+import { shareOrCopy } from '@/lib/clipboard/copyToClipboard';
 
 type PageProps = ClienteDashboardProps & {
     auth: { user: { nombre: string; apellido: string } };
 };
 
-export default function Dashboard({ stats, proximaCita, misCitas }: ClienteDashboardProps) {
+export default function Dashboard({
+    stats,
+    proximaCita,
+    misCitas,
+}: ClienteDashboardProps) {
     const { auth } = usePage().props as unknown as PageProps;
 
     function handleRowClick(_cita: Cita) {
@@ -78,7 +89,8 @@ export default function Dashboard({ stats, proximaCita, misCitas }: ClienteDashb
                             Comparte tu negocio
                         </CardTitle>
                         <CardDescription>
-                            Usa este link para que tus clientes agenden sin registrarse
+                            Usa este link para que tus clientes agenden sin
+                            registrarse
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -93,12 +105,12 @@ export default function Dashboard({ stats, proximaCita, misCitas }: ClienteDashb
                                 className="border-indigo-200 text-indigo-600 hover:bg-indigo-50 dark:border-indigo-800 dark:hover:bg-indigo-950"
                                 onClick={() => {
                                     const url = `${window.location.origin}/reservar`;
-                                    if (navigator.share && /Mobi/i.test(navigator.userAgent)) {
-                                        navigator.share({ title: 'App Salón', url }).catch(console.error);
-                                    } else if (navigator.clipboard) {
-                                        navigator.clipboard.writeText(url);
-                                        toast.success('Link copiado al portapapeles');
-                                    }
+                                    shareOrCopy(url, {
+                                        onSuccess: () =>
+                                            toast.success('Texto copiado'),
+                                        onError: () =>
+                                            toast.error('No se pudo copiar'),
+                                    });
                                 }}
                             >
                                 Compartir
@@ -111,7 +123,9 @@ export default function Dashboard({ stats, proximaCita, misCitas }: ClienteDashb
                 {misCitas.length > 0 && (
                     <div className="flex flex-col gap-3">
                         <div className="flex items-center justify-between">
-                            <h2 className="text-lg font-semibold">Historial de citas</h2>
+                            <h2 className="text-lg font-semibold">
+                                Historial de citas
+                            </h2>
                             <Button variant="outline" size="sm" asChild>
                                 <Link href="/citas">Ver todas</Link>
                             </Button>
