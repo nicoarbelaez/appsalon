@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils';
 import { router } from '@inertiajs/react';
 import { toDateString } from '@/lib/date';
 import type { Horario } from '@/types/horarios';
+import { es } from 'date-fns/locale';
 
 interface BusySlot {
     fecha: string;
@@ -158,6 +159,7 @@ export function DateTimePicker({
                             selected={selectedDate}
                             onSelect={handleDateChange}
                             disabled={calendarDisabled}
+                            locale={es}
                             initialFocus
                         />
                     </PopoverContent>
