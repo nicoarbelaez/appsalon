@@ -22,7 +22,13 @@
       "Skill(playwright-cli)",
       "Bash(node -e \"const d=JSON.parse\\(require\\('fs'\\).readFileSync\\('/dev/stdin','utf8'\\)\\);const model=d?.model?.display_name||'?';const used=d?.context_window?.used_percentage;const cwd=d?.workspace?.current_dir||d?.cwd||'';let branch='';try{branch=require\\('child_process'\\).execSync\\('git -C '+JSON.stringify\\(cwd\\)+' symbolic-ref --short HEAD 2>/dev/null',{stdio:['pipe','pipe','pipe']}\\).toString\\(\\).trim\\(\\);}catch\\(e\\){}const home=process.env.HOME||process.env.USERPROFILE||'';const short=cwd.replace\\(home,'~'\\);let out=model;if\\(used!=null\\){const p=Math.round\\(used\\);const f='#'.repeat\\(Math.round\\(p/10\\)\\).padEnd\\(10,'-'\\);out+=\\\\` | ctx:[\\\\${f}] \\\\${p}%\\\\`;}if\\(branch\\)out+=\\\\` | \\\\${branch}\\\\`;if\\(short\\)out+=\\\\` | \\\\${short}\\\\`;process.stdout.write\\(out\\);\")",
       "Bash(node -e \"let raw='';process.stdin.on\\('data',c=>raw+=c\\);process.stdin.on\\('end',\\(\\)=>{try{const d=JSON.parse\\(raw\\);const model=d?.model?.display_name||'?';const used=d?.context_window?.used_percentage;const cwd=d?.workspace?.current_dir||d?.cwd||'';let branch='';try{branch=require\\('child_process'\\).execSync\\('git -C '+JSON.stringify\\(cwd\\)+' symbolic-ref --short HEAD',{stdio:['pipe','pipe','pipe'],timeout:2000}\\).toString\\(\\).trim\\(\\);}catch\\(e\\){}const home=\\(process.env.USERPROFILE||process.env.HOME||''\\).replace\\(/\\\\\\\\\\\\\\\\/g,'/'\\);const short=cwd.replace\\(home,'~'\\);let out=model;if\\(used!=null\\){const p=Math.round\\(used\\);const f='#'.repeat\\(Math.round\\(p/10\\)\\).padEnd\\(10,'-'\\);out+=\\\\` | ctx:[\\\\${f}] \\\\${p}%\\\\`;}if\\(branch\\)out+=\\\\` | \\\\${branch}\\\\`;if\\(short\\)out+=\\\\` | \\\\${short}\\\\`;process.stdout.write\\(out\\);}catch\\(e\\){process.stdout.write\\('status error'\\);}}\\);\")",
-      "Bash(node /c/Users/arbel/.claude/statusline.mjs)"
+      "Bash(node /c/Users/arbel/.claude/statusline.mjs)",
+      "Bash(python -c \"import json,sys; data=json.load\\(sys.stdin\\); print\\(data[0]['text']\\)\")",
+      "Bash(python3 -c \"import json,sys; data=json.load\\(open\\(r'C:/Users/arbel/.claude/projects/C--Users-arbel-Herd-app-salon/53da7f94-7e3b-4b11-865d-6a43bc31d285/tool-results/toolu_01UQRwzodXK9FQGLWk23vnx1.json'\\)\\); print\\(data[0]['text']\\)\")",
+      "Bash(node *)",
+      "Bash(composer show *)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(d.get\\('version','?'\\), d.get\\('require',{}\\).get\\('dompdf/dompdf','?'\\)\\)\")",
+      "Bash(findstr \"version\")"
     ]
   }
 }
