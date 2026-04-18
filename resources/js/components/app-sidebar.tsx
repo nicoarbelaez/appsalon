@@ -1,5 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import {
+    BarChart3,
     CalendarDays,
     ClipboardList,
     Clock,
@@ -47,6 +48,11 @@ const funcionarioNavItems: NavItem[] = [
         href: '/funcionario/citas',
         icon: ClipboardList,
     },
+    {
+        title: 'Reportes',
+        href: '/funcionario/reportes',
+        icon: BarChart3,
+    },
 ];
 
 const adminNavItems: NavItem[] = [
@@ -74,6 +80,11 @@ const adminNavItems: NavItem[] = [
         title: 'Usuarios',
         href: '/admin/usuarios',
         icon: Users,
+    },
+    {
+        title: 'Reportes',
+        href: '/funcionario/reportes',
+        icon: BarChart3,
     },
 ];
 
