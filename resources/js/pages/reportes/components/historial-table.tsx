@@ -4,18 +4,22 @@ import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import type { ReporteHistorial } from '@/types/reportes';
+import { shareOrCopy } from '@/lib/clipboard/copyToClipboard';
 
-const ESTADO_VARIANT: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-    pendiente:  'secondary',
+const ESTADO_VARIANT: Record<
+    string,
+    'default' | 'secondary' | 'destructive' | 'outline'
+> = {
+    pendiente: 'secondary',
     procesando: 'secondary',
-    listo:      'default',
-    error:      'destructive',
+    listo: 'default',
+    error: 'destructive',
 };
 
 const TIPO_LABEL: Record<string, string> = {
-    citas:     'Citas',
-    ingresos:  'Ingresos',
-    clientes:  'Clientes',
+    citas: 'Citas',
+    ingresos: 'Ingresos',
+    clientes: 'Clientes',
 };
 
 function formatFecha(iso: string) {
@@ -49,15 +53,13 @@ export function HistorialTable({ historial }: Props) {
             toast.success('Descarga iniciada.', { id: toastId });
             window.open(url, '_blank');
         } catch (e) {
-            toast.error(e instanceof Error ? e.message : 'Error al descargar.', { id: toastId });
+            toast.error(
+                e instanceof Error ? e.message : 'Error al descargar.',
+                { id: toastId },
+            );
         } finally {
             setDescargando(null);
         }
-    }
-
-    function handleCopyId(id: number) {
-        navigator.clipboard.writeText(String(id));
-        toast.success(`ID #${id} copiado al portapapeles`);
     }
 
     return (
@@ -65,12 +67,24 @@ export function HistorialTable({ historial }: Props) {
             <table className="w-full text-sm">
                 <thead>
                     <tr className="border-b">
-                        <th className="py-2 text-left font-medium text-muted-foreground">ID</th>
-                        <th className="py-2 text-left font-medium text-muted-foreground">Tipo</th>
-                        <th className="py-2 text-left font-medium text-muted-foreground">Estado</th>
-                        <th className="py-2 text-left font-medium text-muted-foreground">Generado</th>
-                        <th className="py-2 text-left font-medium text-muted-foreground">Expira</th>
-                        <th className="py-2 text-right font-medium text-muted-foreground">Acción</th>
+                        <th className="py-2 text-left font-medium text-muted-foreground">
+                            ID
+                        </th>
+                        <th className="py-2 text-left font-medium text-muted-foreground">
+                            Tipo
+                        </th>
+                        <th className="py-2 text-left font-medium text-muted-foreground">
+                            Estado
+                        </th>
+                        <th className="py-2 text-left font-medium text-muted-foreground">
+                            Generado
+                        </th>
+                        <th className="py-2 text-left font-medium text-muted-foreground">
+                            Expira
+                        </th>
+                        <th className="py-2 text-right font-medium text-muted-foreground">
+                            Acción
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -83,7 +97,18 @@ export function HistorialTable({ historial }: Props) {
                                     </span>
                                     <button
                                         type="button"
-                                        onClick={() => handleCopyId(r.id)}
+                                        onClick={() => {
+                                            shareOrCopy(String(r.id), {
+                                                onSuccess: () =>
+                                                    toast.success(
+                                                        `El ID #${r.id} se copió al portapapeles`,
+                                                    ),
+                                                onError: () =>
+                                                    toast.error(
+                                                        'No se pudo copiar el ID',
+                                                    ),
+                                            });
+                                        }}
                                         className="rounded p-0.5 opacity-50 hover:bg-muted hover:opacity-100"
                                         title="Copiar ID"
                                     >
@@ -91,9 +116,15 @@ export function HistorialTable({ historial }: Props) {
                                     </button>
                                 </span>
                             </td>
-                            <td className="py-2">{TIPO_LABEL[r.tipo] ?? r.tipo}</td>
                             <td className="py-2">
-                                <Badge variant={ESTADO_VARIANT[r.estado] ?? 'secondary'}>
+                                {TIPO_LABEL[r.tipo] ?? r.tipo}
+                            </td>
+                            <td className="py-2">
+                                <Badge
+                                    variant={
+                                        ESTADO_VARIANT[r.estado] ?? 'secondary'
+                                    }
+                                >
                                     {r.estado}
                                 </Badge>
                             </td>
@@ -116,7 +147,9 @@ export function HistorialTable({ historial }: Props) {
                                         ) : (
                                             <Download className="h-3 w-3" />
                                         )}
-                                        <span className="ml-1.5">Descargar</span>
+                                        <span className="ml-1.5">
+                                            Descargar
+                                        </span>
                                     </Button>
                                 )}
                             </td>
