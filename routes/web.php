@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\HorarioController as AdminHorarioController;
 use App\Http\Controllers\Admin\ServicioController as AdminServicioController;
 use App\Http\Controllers\Admin\UsuarioController as AdminUsuarioController;
 use App\Http\Controllers\CitaController;
@@ -48,6 +49,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/servicios/bulk-toggle', [AdminServicioController::class, 'bulkToggle'])->name('servicios.bulk-toggle');
     Route::resource('/servicios', AdminServicioController::class)->except(['show', 'create', 'edit']);
     Route::resource('/usuarios', AdminUsuarioController::class)->only(['index', 'store', 'edit', 'update', 'destroy']);
+    Route::get('/horarios', [AdminHorarioController::class, 'index'])->name('horarios.index');
+    Route::put('/horarios', [AdminHorarioController::class, 'update'])->name('horarios.update');
 });
 
 require __DIR__ . '/settings.php';

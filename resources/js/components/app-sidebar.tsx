@@ -2,6 +2,7 @@ import { Link, usePage } from '@inertiajs/react';
 import {
     CalendarDays,
     ClipboardList,
+    Clock,
     LayoutGrid,
     Scissors,
     ShieldCheck,
@@ -63,6 +64,11 @@ const adminNavItems: NavItem[] = [
         title: 'Panel',
         href: '/admin',
         icon: ShieldCheck,
+    },
+    {
+        title: 'Horarios',
+        href: '/admin/horarios',
+        icon: Clock,
     },
     {
         title: 'Servicios',
