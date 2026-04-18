@@ -61,11 +61,6 @@ const adminNavItems: NavItem[] = [
         icon: ClipboardList,
     },
     {
-        title: 'Panel',
-        href: '/admin',
-        icon: ShieldCheck,
-    },
-    {
         title: 'Horarios',
         href: '/admin/horarios',
         icon: Clock,

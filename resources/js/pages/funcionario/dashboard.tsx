@@ -1,24 +1,22 @@
 import * as React from 'react';
 import { Head, router } from '@inertiajs/react';
-import { CalendarCheck, CalendarDays, DollarSign, Scissors, Users } from 'lucide-react';
+import { CalendarCheck, CalendarDays, Scissors, Users } from 'lucide-react';
 import { CitasHoyTable } from '@/components/dashboard/citas-hoy-table';
 import { CitasAreaChart } from '@/components/dashboard/charts/citas-area-chart';
 import { CitasLineChart } from '@/components/dashboard/charts/citas-line-chart';
 import { DashboardFilters } from '@/components/dashboard/dashboard-filters';
 import { StatCard } from '@/components/dashboard/stat-card';
-import { StatCardSkeleton } from '@/components/dashboard/stat-card-skeleton';
 import { dashboard } from '@/routes';
-import type { AdminDashboardProps, DashboardFiltros } from '@/types/dashboard';
+import type { DashboardFiltros, FuncionarioDashboardProps } from '@/types/dashboard';
 
-export default function AdminDashboard({
+export default function FuncionarioDashboard({
     stats,
     citasPorDia,
     citasPorServicio,
     citasHoyDetalle,
     servicios,
     filtros,
-    config,
-}: AdminDashboardProps) {
+}: FuncionarioDashboardProps) {
     const [isLoading, setIsLoading] = React.useState(false);
 
     React.useEffect(() => {
@@ -30,21 +28,21 @@ export default function AdminDashboard({
     function handleFiltrosChange(patch: Partial<DashboardFiltros>) {
         const next = { ...filtros, ...patch };
         const params: Record<string, string> = {};
-        if (next.desde)      params.fecha_desde = next.desde;
-        if (next.hasta)      params.fecha_hasta  = next.hasta;
-        if (next.servicioId) params.servicio_id  = String(next.servicioId);
+        if (next.desde)      params.fecha_desde  = next.desde;
+        if (next.hasta)      params.fecha_hasta   = next.hasta;
+        if (next.servicioId) params.servicio_id   = String(next.servicioId);
         router.get('/dashboard', params, { preserveState: true, replace: true });
     }
 
     return (
         <>
-            <Head title="Dashboard — Admin" />
+            <Head title="Dashboard — Funcionario" />
 
             <div className="flex flex-col gap-6 p-4 sm:p-6">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold">Panel de Administración</h1>
-                        <p className="text-sm text-muted-foreground">Métricas globales del salón</p>
+                        <h1 className="text-2xl font-bold">Panel de Funcionario</h1>
+                        <p className="text-sm text-muted-foreground">Resumen de actividad del salón</p>
                     </div>
                     <DashboardFilters
                         filtros={filtros}
@@ -54,7 +52,7 @@ export default function AdminDashboard({
                 </div>
 
                 {/* Stats */}
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <StatCard
                         title="Citas hoy"
                         value={stats.citasHoy}
@@ -82,20 +80,6 @@ export default function AdminDashboard({
                         iconClassName="text-purple-500"
                         valueClassName="text-purple-600"
                     />
-                    {config.showIngresos && (
-                        isLoading ? (
-                            <StatCardSkeleton count={1} />
-                        ) : (
-                            <StatCard
-                                title="Ingresos del período"
-                                value={`$${Number(stats.ingresos).toLocaleString('es-CO', { minimumFractionDigits: 2 })}`}
-                                icon={DollarSign}
-                                iconClassName="text-green-500"
-                                valueClassName="text-green-600"
-                                description="Citas completadas / confirmadas"
-                            />
-                        )
-                    )}
                 </div>
 
                 {/* Charts */}
@@ -111,6 +95,6 @@ export default function AdminDashboard({
     );
 }
 
-AdminDashboard.layout = {
+FuncionarioDashboard.layout = {
     breadcrumbs: [{ title: 'Dashboard', href: dashboard() }],
 };

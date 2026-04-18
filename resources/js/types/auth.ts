@@ -5,6 +5,7 @@ export type User = {
     email: string;
     telefono?: string | null;
     admin: boolean;
+    rol?: 'cliente' | 'funcionario' | 'admin';
     confirmado: boolean;
     avatar?: string;
     two_factor_enabled?: boolean;
@@ -16,6 +17,8 @@ export type User = {
 export type Auth = {
     user: User;
     isAdmin: boolean;
+    isFuncionario: boolean;
+    rol: 'cliente' | 'funcionario' | 'admin';
 };
 
 export type TwoFactorSetupData = {

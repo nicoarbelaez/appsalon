@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\HorarioController as AdminHorarioController;
 use App\Http\Controllers\Admin\ServicioController as AdminServicioController;
 use App\Http\Controllers\Admin\UsuarioController as AdminUsuarioController;
@@ -38,7 +37,7 @@ Route::middleware(['auth', 'funcionario'])->prefix('funcionario')->name('funcion
 
 // Admin routes
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/', fn () => redirect()->route('dashboard'))->name('dashboard');
     Route::post('/servicios/preview', [AdminServicioController::class, 'preview'])->name('servicios.preview');
     Route::post('/servicios/revalidate', [AdminServicioController::class, 'revalidate'])->name('servicios.revalidate');
     Route::post('/servicios/import-rows', [AdminServicioController::class, 'importRows'])->name('servicios.import-rows');
