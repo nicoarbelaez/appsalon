@@ -28,11 +28,17 @@ interface Props {
 
 export default function AdminServiciosIndex({ servicios, filters }: Props) {
     const [search, setSearch] = React.useState(filters.search);
-    const [activo, setActivo] = React.useState<ServiciosFilters['activo']>(filters.activo);
+    const [activo, setActivo] = React.useState<ServiciosFilters['activo']>(
+        filters.activo,
+    );
     const [importOpen, setImportOpen] = React.useState(false);
     const [sheetOpen, setSheetOpen] = React.useState(false);
-    const [sheetMode, setSheetMode] = React.useState<'create' | 'edit'>('create');
-    const [editingServicio, setEditingServicio] = React.useState<Servicio | undefined>(undefined);
+    const [sheetMode, setSheetMode] = React.useState<'create' | 'edit'>(
+        'create',
+    );
+    const [editingServicio, setEditingServicio] = React.useState<
+        Servicio | undefined
+    >(undefined);
 
     React.useEffect(() => {
         const t = setTimeout(() => {
@@ -72,21 +78,29 @@ export default function AdminServiciosIndex({ servicios, filters }: Props) {
             <Head title="Admin — Servicios" />
 
             <div className="flex flex-col gap-6 p-6">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Servicios</h1>
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="min-w-0">
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                            Servicios
+                        </h1>
                         <p className="text-sm text-muted-foreground">
                             {servicios.length} servicio(s)
                         </p>
                     </div>
-                    <div className="flex items-center gap-2">
+
+                    <div className="flex w-full flex-wrap gap-2 sm:w-auto sm:flex-nowrap sm:items-center sm:justify-end">
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="outline" size="sm">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="flex-1 sm:flex-none"
+                                >
                                     <Download className="mr-1.5 h-4 w-4" />
                                     Exportar
                                 </Button>
                             </DropdownMenuTrigger>
+
                             <DropdownMenuContent align="end">
                                 <DropdownMenuItem asChild>
                                     <a
@@ -109,12 +123,16 @@ export default function AdminServiciosIndex({ servicios, filters }: Props) {
                             variant="outline"
                             size="sm"
                             onClick={() => setImportOpen(true)}
+                            className="flex-1 sm:flex-none"
                         >
                             <Upload className="mr-1.5 h-4 w-4" />
                             Importar
                         </Button>
 
-                        <Button className="bg-rose-600 hover:bg-rose-700" onClick={openCreate}>
+                        <Button
+                            className="flex-1 bg-rose-600 hover:bg-rose-700 sm:flex-none"
+                            onClick={openCreate}
+                        >
                             <Plus className="mr-2 h-4 w-4" />
                             Nuevo servicio
                         </Button>
@@ -129,7 +147,10 @@ export default function AdminServiciosIndex({ servicios, filters }: Props) {
                         onChange={(e) => setSearch(e.target.value)}
                         className="h-8 w-64"
                     />
-                    <Select value={activo || 'todos'} onValueChange={handleActivoChange}>
+                    <Select
+                        value={activo || 'todos'}
+                        onValueChange={handleActivoChange}
+                    >
                         <SelectTrigger className="h-8 w-36">
                             <SelectValue placeholder="Estado" />
                         </SelectTrigger>
@@ -160,10 +181,12 @@ export default function AdminServiciosIndex({ servicios, filters }: Props) {
                 onOpenChange={setImportOpen}
                 config={{
                     title: 'Importar servicios',
-                    description: 'Sube un archivo Excel o CSV para crear servicios en masa.',
+                    description:
+                        'Sube un archivo Excel o CSV para crear servicios en masa.',
                     templateUrl: '/admin/servicios/import/template',
                     inputId: 'servicios-import-file',
-                    columnsHint: 'Columnas: nombre, precio, descripcion, duracion, activo (1/0)',
+                    columnsHint:
+                        'Columnas: nombre, precio, descripcion, duracion, activo (1/0)',
                     previewUrl: '/admin/servicios/preview',
                     revalidateUrl: '/admin/servicios/revalidate',
                     importRowsUrl: '/admin/servicios/import-rows',

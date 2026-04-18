@@ -22,7 +22,12 @@ interface Props {
     usuarios: Usuario[];
 }
 
-export default function AgendaCitas({ citas, servicios, ocupados, usuarios }: Props) {
+export default function AgendaCitas({
+    citas,
+    servicios,
+    ocupados,
+    usuarios,
+}: Props) {
     const [selectedCita, setSelectedCita] = React.useState<Cita | null>(null);
     const [detailOpen, setDetailOpen] = React.useState(false);
     const [nuevaOpen, setNuevaOpen] = React.useState(false);
@@ -38,17 +43,25 @@ export default function AgendaCitas({ citas, servicios, ocupados, usuarios }: Pr
             <Head title="Agenda de citas" />
 
             <div className="flex flex-col gap-4 p-6">
-                <div className="flex items-center justify-between">
-                    <h1 className="text-2xl font-bold">Agenda de citas</h1>
-                    <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="min-w-0">
+                        <h1 className="text-2xl font-bold">Agenda de citas</h1>
+                    </div>
+
+                    <div className="flex w-full flex-wrap gap-2 sm:w-auto sm:flex-nowrap sm:items-center sm:justify-end">
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="outline" size="sm">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="flex-1 justify-center sm:flex-none"
+                                >
                                     <Download className="mr-1.5 h-4 w-4" />
                                     Exportar
                                 </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
+
+                            <DropdownMenuContent align="end" className="w-40">
                                 <DropdownMenuItem asChild>
                                     <a href="/funcionario/citas/export?format=xlsx">
                                         Excel (.xlsx)
@@ -66,19 +79,27 @@ export default function AgendaCitas({ citas, servicios, ocupados, usuarios }: Pr
                             variant="outline"
                             size="sm"
                             onClick={() => setImportOpen(true)}
+                            className="flex-1 justify-center sm:flex-none"
                         >
                             <Upload className="mr-1.5 h-4 w-4" />
                             Importar
                         </Button>
 
-                        <Button className="bg-rose-600 hover:bg-rose-700" onClick={() => setNuevaOpen(true)}>
+                        <Button
+                            className="flex-1 justify-center bg-rose-600 hover:bg-rose-700 sm:flex-none"
+                            onClick={() => setNuevaOpen(true)}
+                        >
                             <Plus className="mr-2 h-4 w-4" />
                             Nueva cita
                         </Button>
                     </div>
                 </div>
 
-                <CitasTable citas={citas} mode="agenda" onRowClick={openDetail} />
+                <CitasTable
+                    citas={citas}
+                    mode="agenda"
+                    onRowClick={openDetail}
+                />
             </div>
 
             <DetailSheet
@@ -94,10 +115,12 @@ export default function AgendaCitas({ citas, servicios, ocupados, usuarios }: Pr
                 onOpenChange={setImportOpen}
                 config={{
                     title: 'Importar citas',
-                    description: 'Sube un archivo Excel o CSV para crear citas en masa.',
+                    description:
+                        'Sube un archivo Excel o CSV para crear citas en masa.',
                     templateUrl: '/funcionario/citas/import/template',
                     inputId: 'citas-import-file',
-                    columnsHint: 'Columnas: fecha (YYYY-MM-DD), hora (HH:MM), email_usuario, nombres_servicios, estado. Opcionales: nombre_invitado, email_invitado, telefono_invitado',
+                    columnsHint:
+                        'Columnas: fecha (YYYY-MM-DD), hora (HH:MM), email_usuario, nombres_servicios, estado. Opcionales: nombre_invitado, email_invitado, telefono_invitado',
                     previewUrl: '/funcionario/citas/preview',
                     revalidateUrl: '/funcionario/citas/revalidate',
                     importRowsUrl: '/funcionario/citas/import-rows',
