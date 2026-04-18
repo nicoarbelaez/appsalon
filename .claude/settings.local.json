@@ -16,7 +16,9 @@
       "Bash(npm list *)",
       "Bash(composer require *)",
       "Bash(powershell -Command \"Remove-Item 'C:\\\\Users\\\\arbel\\\\Herd\\\\app-salon\\\\resources\\\\js\\\\components\\\\citas\\\\import-dialog.tsx','C:\\\\Users\\\\arbel\\\\Herd\\\\app-salon\\\\resources\\\\js\\\\components\\\\servicios\\\\import-dialog.tsx'\")",
-      "Bash(powershell *)"
+      "Bash(powershell *)",
+      "Bash(/c/Users/arbel/Herd/bin/php8.4.exe artisan *)",
+      "Skill(shadcn)"
     ]
   }
 }
