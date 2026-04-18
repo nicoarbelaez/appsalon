@@ -35,8 +35,10 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { DateRangePicker } from '@/components/ui/date-range-picker';
 import { EstadoBadge, estadoConfig } from '@/components/citas/estado-badge';
-import { formatFecha, formatHora } from '@/lib/date';
+import { formatFecha, formatHora, toDateString } from '@/lib/date';
+import type { DateRange } from 'react-day-picker';
 import { compartirCitaWhatsApp } from '@/lib/whatsapp';
 import type { Cita, EstadoCita } from '@/types/citas';
 
@@ -56,6 +58,7 @@ function buildColumns(mode: 'agenda' | 'mis-citas'): ColumnDef<Cita>[] {
     const cols: ColumnDef<Cita>[] = [
         {
             accessorKey: 'fecha',
+            filterFn: 'dateRange' as any,
             header: ({ column }) => (
                 <Button
                     variant="ghost"
@@ -170,6 +173,7 @@ export function CitasTable({ citas, mode, onRowClick }: CitasTableProps) {
     ]);
     const [columnFilters, setColumnFilters] =
         React.useState<ColumnFiltersState>([]);
+    const [dateRange, setDateRange] = React.useState<DateRange | undefined>(undefined);
 
     const columns = React.useMemo(() => buildColumns(mode), [mode]);
 
@@ -183,11 +187,31 @@ export function CitasTable({ citas, mode, onRowClick }: CitasTableProps) {
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
+        filterFns: {
+            dateRange: (row, columnId, value: { desde: string; hasta: string }) => {
+                const fecha = row.getValue<string>(columnId);
+                if (value.desde && fecha < value.desde) return false;
+                if (value.hasta && fecha > value.hasta) return false;
+                return true;
+            },
+        },
         initialState: { pagination: { pageSize: 15 } },
     });
 
     const estadoFiltro =
         (table.getColumn('estado')?.getFilterValue() as string) ?? 'todos';
+
+    function handleDateRange(range: DateRange | undefined) {
+        setDateRange(range);
+        table.getColumn('fecha')?.setFilterValue(
+            range?.from
+                ? {
+                      desde: toDateString(range.from),
+                      hasta: range.to ? toDateString(range.to) : '',
+                  }
+                : undefined,
+        );
+    }
 
     return (
         <div className="flex flex-col gap-4">
@@ -209,6 +233,14 @@ export function CitasTable({ citas, mode, onRowClick }: CitasTableProps) {
                         className="h-8 w-56"
                     />
                 )}
+
+                {/* Date range */}
+                <DateRangePicker
+                    value={dateRange}
+                    onValueChange={handleDateRange}
+                    placeholder="Filtrar por fecha"
+                    numberOfMonths={1}
+                />
 
                 <Select
                     value={estadoFiltro}
