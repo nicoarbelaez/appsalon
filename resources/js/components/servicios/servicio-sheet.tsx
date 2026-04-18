@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/sheet';
 import type { Servicio } from '@/types/servicios';
 import { IMaskInput } from 'react-imask';
+import { toast } from 'sonner';
 
 interface ServicioSheetProps {
     mode: 'create' | 'edit';
@@ -65,12 +66,14 @@ export function ServicioSheet({
         if (mode === 'create') {
             post('/admin/servicios', {
                 preserveScroll: true,
-                onSuccess: () => handleOpenChange(false),
+                onSuccess: () => { handleOpenChange(false); toast.success('Servicio creado correctamente'); },
+                onError: () => toast.error('No se pudo crear el servicio'),
             });
         } else {
             put(`/admin/servicios/${servicio!.id}`, {
                 preserveScroll: true,
-                onSuccess: () => handleOpenChange(false),
+                onSuccess: () => { handleOpenChange(false); toast.success('Servicio actualizado correctamente'); },
+                onError: () => toast.error('No se pudo actualizar el servicio'),
             });
         }
     }

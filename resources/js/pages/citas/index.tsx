@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Head, router } from '@inertiajs/react';
+import { toast } from 'sonner';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CitasTable } from '@/components/citas/citas-table';
@@ -25,7 +26,10 @@ export default function CitasIndex({ citas, servicios, ocupados }: Props) {
     }
 
     function cancelar(id: number) {
-        router.delete(`/citas/${id}`);
+        router.delete(`/citas/${id}`, {
+            onSuccess: () => toast.success('Cita cancelada'),
+            onError: () => toast.error('No se pudo cancelar la cita'),
+        });
     }
 
     return (

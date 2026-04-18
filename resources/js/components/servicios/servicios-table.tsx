@@ -16,6 +16,7 @@ import {
     MoreHorizontal,
 } from 'lucide-react';
 import { router } from '@inertiajs/react';
+import { toast } from 'sonner';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -219,7 +220,11 @@ export function ServiciosTable({
                                     router.post(
                                         '/admin/servicios/bulk-toggle',
                                         { ids: [s.id], activo: !s.activo },
-                                        { preserveScroll: true },
+                                        {
+                                            preserveScroll: true,
+                                            onSuccess: () => toast.success(s.activo ? `"${s.nombre}" deshabilitado` : `"${s.nombre}" habilitado`),
+                                            onError: () => toast.error('Error al cambiar el estado del servicio'),
+                                        },
                                     );
                                 }}
                             >
@@ -273,20 +278,24 @@ export function ServiciosTable({
 
     function confirmBulkToggle() {
         if (bulkToggleTarget === null) return;
+        const count = allSelected ? servicios.length : selectedIds.length;
+        const activo = bulkToggleTarget;
         const body = allSelected
             ? {
                   selectAll: true,
-                  activo: bulkToggleTarget,
+                  activo,
                   search: filters.search,
                   activo_filter: filters.activo,
               }
-            : { ids: selectedIds, activo: bulkToggleTarget };
+            : { ids: selectedIds, activo };
         router.post('/admin/servicios/bulk-toggle', body, {
             preserveScroll: true,
             onSuccess: () => {
                 setRowSelection({});
                 setAllSelected(false);
+                toast.success(`${count} servicio(s) ${activo ? 'habilitados' : 'deshabilitados'}`);
             },
+            onError: () => toast.error('Error al cambiar el estado de los servicios'),
         });
         setBulkToggleTarget(null);
     }
@@ -298,10 +307,14 @@ export function ServiciosTable({
     function confirmDelete() {
         if (!deleteTarget) return;
         if (deleteTarget.type === 'single') {
+            const nombre = deleteTarget.servicio.nombre;
             router.delete(`/admin/servicios/${deleteTarget.servicio.id}`, {
                 preserveScroll: true,
+                onSuccess: () => toast.success(`"${nombre}" eliminado`),
+                onError: () => toast.error('No se pudo eliminar el servicio'),
             });
         } else {
+            const count = allSelected ? servicios.length : selectedIds.length;
             const body = allSelected
                 ? {
                       selectAll: true,
@@ -314,7 +327,9 @@ export function ServiciosTable({
                 onSuccess: () => {
                     setRowSelection({});
                     setAllSelected(false);
+                    toast.success(`${count} servicio(s) eliminados`);
                 },
+                onError: () => toast.error('No se pudieron eliminar los servicios'),
             });
         }
         setDeleteTarget(null);

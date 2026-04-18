@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { router } from '@inertiajs/react';
+import { toast } from 'sonner';
 import { AlertCircle, Check, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -96,6 +97,7 @@ export function ImportPreviewDrawer({
     }
 
     async function handleImport() {
+        const count = rows.length;
         setImporting(true);
         try {
             router.post(
@@ -103,9 +105,11 @@ export function ImportPreviewDrawer({
                 { rows },
                 {
                     onSuccess: () => {
+                        toast.success(`${count} registro(s) importados correctamente`);
                         onSuccess();
                         onOpenChange(false);
                     },
+                    onError: () => toast.error('Ocurrió un error durante la importación'),
                     onFinish: () => setImporting(false),
                 },
             );

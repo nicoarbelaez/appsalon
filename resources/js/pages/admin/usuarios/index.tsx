@@ -25,6 +25,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 interface Usuario {
     id: number;
@@ -64,7 +65,11 @@ export default function AdminUsuariosIndex({ usuarios }: Props) {
 
     function confirmDelete() {
         if (!deletingUsuario) return;
-        router.delete(`/admin/usuarios/${deletingUsuario.id}`);
+        const { id, nombre } = deletingUsuario;
+        router.delete(`/admin/usuarios/${id}`, {
+            onSuccess: () => toast.success(`Usuario "${nombre}" eliminado`),
+            onError: () => toast.error('No se pudo eliminar el usuario'),
+        });
         setDeletingUsuario(null);
     }
 
@@ -74,7 +79,9 @@ export default function AdminUsuariosIndex({ usuarios }: Props) {
             onSuccess: () => {
                 setIsCreateOpen(false);
                 reset();
+                toast.success('Usuario creado correctamente');
             },
+            onError: () => toast.error('No se pudo crear el usuario'),
         });
     }
 

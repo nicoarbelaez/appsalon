@@ -1,4 +1,5 @@
 import { Head, Link, useForm } from '@inertiajs/react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -28,7 +29,10 @@ export default function AdminUsuariosEdit({ usuario }: { usuario: Usuario }) {
 
     function submit(e: React.FormEvent) {
         e.preventDefault();
-        put(`/admin/usuarios/${usuario.id}`);
+        put(`/admin/usuarios/${usuario.id}`, {
+            onSuccess: () => toast.success('Cambios guardados correctamente'),
+            onError: () => toast.error('No se pudieron guardar los cambios'),
+        });
     }
 
     return (

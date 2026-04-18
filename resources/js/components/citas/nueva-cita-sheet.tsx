@@ -27,6 +27,7 @@ import {
     SheetHeader,
     SheetTitle,
 } from '@/components/ui/sheet';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { toDateString } from '@/lib/date';
 import type { BusySlot, Servicio, Usuario } from '@/types/citas';
@@ -163,8 +164,8 @@ export function NuevaCitaSheet({
 
         router.post(url, body, {
             preserveScroll: true,
-            onSuccess: () => { setSaving(false); handleOpenChange(false); },
-            onError: (e) => { setSaving(false); setErrors(e as Record<string, string>); },
+            onSuccess: () => { setSaving(false); handleOpenChange(false); toast.success('Cita reservada correctamente'); },
+            onError: (e) => { setSaving(false); setErrors(e as Record<string, string>); toast.error('No se pudo reservar la cita'); },
         });
     }
 

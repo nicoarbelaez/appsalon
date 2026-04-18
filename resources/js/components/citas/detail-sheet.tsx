@@ -29,6 +29,7 @@ import {
     SheetHeader,
     SheetTitle,
 } from '@/components/ui/sheet';
+import { toast } from 'sonner';
 import { EstadoBadge, estadoConfig } from '@/components/citas/estado-badge';
 import { getNombreCliente } from '@/components/citas/citas-table';
 import { formatFecha, formatHora } from '@/lib/date';
@@ -86,8 +87,8 @@ export function DetailSheet({
             { estado, servicioIds: selectedIds },
             {
                 preserveScroll: true,
-                onSuccess: () => { setSaving(false); onOpenChange(false); },
-                onError: () => setSaving(false),
+                onSuccess: () => { setSaving(false); onOpenChange(false); toast.success('Cambios guardados correctamente'); },
+                onError: () => { setSaving(false); toast.error('No se pudo guardar los cambios'); },
             },
         );
     }
