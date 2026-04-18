@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\UsuarioController as AdminUsuarioController;
 use App\Http\Controllers\CitaController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Funcionario\CitaController as FuncionarioCitaController;
+use App\Http\Controllers\Funcionario\ReporteController as FuncionarioReporteController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ReservaPublicaController;
 use Illuminate\Support\Facades\Route;
@@ -33,6 +34,12 @@ Route::middleware(['auth', 'funcionario'])->prefix('funcionario')->name('funcion
     Route::get('/citas', [FuncionarioCitaController::class, 'index'])->name('citas');
     Route::post('/citas', [FuncionarioCitaController::class, 'store'])->name('citas.store');
     Route::patch('/citas/{cita}', [FuncionarioCitaController::class, 'update'])->name('citas.update');
+
+    Route::get('/reportes', [FuncionarioReporteController::class, 'index'])->name('reportes.index');
+    Route::post('/reportes/solicitar', [FuncionarioReporteController::class, 'solicitar'])->name('reportes.solicitar');
+    Route::get('/reportes/{reporte}/estado', [FuncionarioReporteController::class, 'estado'])->name('reportes.estado');
+    Route::get('/reportes/{reporte}/url-descarga', [FuncionarioReporteController::class, 'urlDescarga'])->name('reportes.url-descarga');
+    Route::get('/reportes/{reporte}/descargar', [FuncionarioReporteController::class, 'descargar'])->name('reportes.descargar');
 });
 
 // Admin routes
