@@ -53,8 +53,14 @@ export function CitasLineChart({ data, loading }: CitasLineChartProps) {
                         config={chartConfig}
                         className="aspect-auto h-[200px] w-full sm:h-[260px]"
                     >
-                        <LineChart data={data} margin={{ left: 4, right: 8, top: 4 }}>
-                            <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                        <LineChart
+                            data={data}
+                            margin={{ left: 4, right: 8, top: 4 }}
+                        >
+                            <CartesianGrid
+                                vertical={false}
+                                strokeDasharray="3 3"
+                            />
                             <XAxis
                                 dataKey="dia"
                                 tickLine={false}
@@ -85,6 +91,7 @@ export function CitasLineChart({ data, loading }: CitasLineChartProps) {
                                         }
                                         formatter={(value: unknown) => [
                                             `$${Number(value ?? 0).toLocaleString('es-CO', { minimumFractionDigits: 2 })}`,
+                                            ' ',
                                             'Ingresos',
                                         ]}
                                         indicator="line"

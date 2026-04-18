@@ -44,7 +44,9 @@ export function CitasAreaChart({ data, loading }: CitasAreaChartProps) {
     return (
         <Card>
             <CardHeader>
-                <CardTitle className="text-base">Ingresos por servicio</CardTitle>
+                <CardTitle className="text-base">
+                    Ingresos por servicio
+                </CardTitle>
                 <CardDescription>
                     Ingresos de citas completadas / confirmadas por servicio
                 </CardDescription>
@@ -57,8 +59,14 @@ export function CitasAreaChart({ data, loading }: CitasAreaChartProps) {
                         Sin datos para el período seleccionado.
                     </div>
                 ) : (
-                    <ChartContainer config={config} className="aspect-auto h-[200px] w-full sm:h-[260px]">
-                        <AreaChart data={pivoted} margin={{ left: 4, right: 8, top: 4 }}>
+                    <ChartContainer
+                        config={config}
+                        className="aspect-auto h-[200px] w-full sm:h-[260px]"
+                    >
+                        <AreaChart
+                            data={pivoted}
+                            margin={{ left: 4, right: 8, top: 4 }}
+                        >
                             <defs>
                                 {servicios.map((s) => {
                                     const slug = slugify(s);
@@ -66,15 +74,29 @@ export function CitasAreaChart({ data, loading }: CitasAreaChartProps) {
                                         <linearGradient
                                             key={slug}
                                             id={`fill-${slug}`}
-                                            x1="0" y1="0" x2="0" y2="1"
+                                            x1="0"
+                                            y1="0"
+                                            x2="0"
+                                            y2="1"
                                         >
-                                            <stop offset="5%"  stopColor={`var(--color-${slug})`} stopOpacity={0.8} />
-                                            <stop offset="95%" stopColor={`var(--color-${slug})`} stopOpacity={0.1} />
+                                            <stop
+                                                offset="5%"
+                                                stopColor={`var(--color-${slug})`}
+                                                stopOpacity={0.8}
+                                            />
+                                            <stop
+                                                offset="95%"
+                                                stopColor={`var(--color-${slug})`}
+                                                stopOpacity={0.1}
+                                            />
                                         </linearGradient>
                                     );
                                 })}
                             </defs>
-                            <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                            <CartesianGrid
+                                vertical={false}
+                                strokeDasharray="3 3"
+                            />
                             <XAxis
                                 dataKey="dia"
                                 tickLine={false}
@@ -82,7 +104,9 @@ export function CitasAreaChart({ data, loading }: CitasAreaChartProps) {
                                 tickMargin={8}
                                 minTickGap={40}
                                 tickFormatter={(value: string) =>
-                                    format(parseISO(value), 'd MMM', { locale: es })
+                                    format(parseISO(value), 'd MMM', {
+                                        locale: es,
+                                    })
                                 }
                             />
                             <YAxis
@@ -103,15 +127,24 @@ export function CitasAreaChart({ data, loading }: CitasAreaChartProps) {
                                                 { locale: es },
                                             )
                                         }
-                                        formatter={(value: unknown, name: unknown) => [
+                                        formatter={(
+                                            value: unknown,
+                                            name: unknown,
+                                        ) => [
                                             `$${Number(value ?? 0).toLocaleString('es-CO', { minimumFractionDigits: 2 })}`,
-                                            config[name as string]?.label ?? (name as string),
+                                            ' ',
+                                            config[name as string]?.label ??
+                                                (name as string),
                                         ]}
                                         indicator="dot"
                                     />
                                 }
                             />
-                            <ChartLegend content={<ChartLegendContent />} />
+                            <ChartLegend
+                                content={
+                                    <ChartLegendContent className="flex-wrap gap-x-3 gap-y-1 text-xs" />
+                                }
+                            />
                             {servicios.map((s) => {
                                 const slug = slugify(s);
                                 return (
