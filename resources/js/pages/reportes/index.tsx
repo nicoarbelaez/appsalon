@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -55,6 +55,8 @@ export default function ReportesIndex({ servicios, historial }: Props) {
         toast.success('¡Reporte listo! Descargando...', { id: toastIdRef.current });
         setGenerando(false);
 
+        router.reload({ only: ['historial'] });
+
         const timer = setTimeout(async () => {
             try {
                 const res = await fetch(
@@ -101,7 +103,13 @@ export default function ReportesIndex({ servicios, historial }: Props) {
 
             const data = await res.json();
             setReporteId(data.reporte_id);
-            toast.loading('Reporte en cola, en breve comenzará...', { id: toastIdRef.current });
+
+            if (data.cached) {
+                // Already ready — skip queue message, polling will resolve immediately
+                toast.loading('Reporte en caché, obteniendo...', { id: toastIdRef.current });
+            } else {
+                toast.loading('Reporte en cola, en breve comenzará...', { id: toastIdRef.current });
+            }
         } catch (e) {
             toast.error(e instanceof Error ? e.message : 'Error desconocido.', {
                 id: toastIdRef.current,
@@ -160,16 +168,20 @@ export default function ReportesIndex({ servicios, historial }: Props) {
                     </CardContent>
                 </Card>
 
-                {historial.length > 0 && (
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-base">Reportes recientes</CardTitle>
-                        </CardHeader>
-                        <CardContent>
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-base">Reportes recientes</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        {historial.length > 0 ? (
                             <HistorialTable historial={historial} />
-                        </CardContent>
-                    </Card>
-                )}
+                        ) : (
+                            <p className="text-sm text-muted-foreground">
+                                Aún no has generado reportes.
+                            </p>
+                        )}
+                    </CardContent>
+                </Card>
             </div>
         </>
     );
