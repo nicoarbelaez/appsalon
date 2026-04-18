@@ -9,6 +9,7 @@ interface StatCardProps {
     iconClassName?: string;
     valueClassName?: string;
     description?: string;
+    className?: string;
 }
 
 export function StatCard({
@@ -18,19 +19,39 @@ export function StatCard({
     iconClassName,
     valueClassName,
     description,
+    className,
 }: StatCardProps) {
     return (
-        <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+        <Card className={cn('flex h-full flex-col', className)}>
+            <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm leading-tight font-medium text-muted-foreground">
                     {title}
                 </CardTitle>
-                <Icon className={cn('h-4 w-4 text-muted-foreground', iconClassName)} />
+
+                <Icon
+                    className={cn(
+                        'h-4 w-4 shrink-0 text-muted-foreground',
+                        iconClassName,
+                    )}
+                />
             </CardHeader>
-            <CardContent>
-                <p className={cn('text-3xl font-bold', valueClassName)}>{value}</p>
+
+            <CardContent className="flex flex-1 flex-col pt-0">
+                <div className="flex-1" />
+
+                <p
+                    className={cn(
+                        'text-2xl leading-none font-bold sm:text-3xl',
+                        valueClassName,
+                    )}
+                >
+                    {value}
+                </p>
+
                 {description && (
-                    <p className="mt-1 text-xs text-muted-foreground">{description}</p>
+                    <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                        {description}
+                    </p>
                 )}
             </CardContent>
         </Card>
