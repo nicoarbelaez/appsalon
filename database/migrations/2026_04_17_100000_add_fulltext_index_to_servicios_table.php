@@ -7,11 +7,15 @@ return new class extends Migration
 {
     public function up(): void
     {
-        DB::statement('ALTER TABLE servicios ADD FULLTEXT INDEX ft_servicios (nombre, descripcion)');
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement('ALTER TABLE servicios ADD FULLTEXT INDEX ft_servicios (nombre, descripcion)');
+        }
     }
 
     public function down(): void
     {
-        DB::statement('ALTER TABLE servicios DROP INDEX ft_servicios');
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement('ALTER TABLE servicios DROP INDEX ft_servicios');
+        }
     }
 };
