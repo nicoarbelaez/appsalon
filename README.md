@@ -1,68 +1,55 @@
-# AppSalon - Sistema de Gestión de Citas para Salón de Belleza
+# AppSalon
 
-Aplicación web para gestionar citas, servicios y clientes de un salón de belleza. Permite a clientes reservar citas y a administradores gestionar todo el negocio.
+[English](./README.en.md) · Español
 
----
+Sistema web de reservas para un salón de belleza, hecho con Laravel e Inertia (React). Clientes y visitantes sin cuenta reservan citas; el personal gestiona la agenda; el administrador controla servicios, horarios, usuarios y métricas, y cualquier funcionario puede pedir reportes en PDF que se generan en segundo plano.
 
-## Tecnologías utilizadas
+Proyecto universitario de la Universidad Santiago de Cali (USC), construido por Nicolas Arbelaez. El manual de usuario con capturas está en [manual_usuario.md](./manual_usuario.md).
 
-| Tecnología | Para qué sirve |
-|------------|---------------|
-| **Laravel 13+** | Framework PHP — lógica del servidor, rutas, base de datos |
-| **MySQL (Docker)** | Base de datos — guarda usuarios, citas, servicios |
-| **React + Inertia.js** | Interfaz de usuario interactiva sin recargar la página |
-| **Tailwind CSS 4** | Estilos y diseño visual |
-| **Pest** | Pruebas automatizadas |
-| **Laravel Herd** | Servidor local de desarrollo |
-| **Docker** | Contenedor para la base de datos MySQL |
+## Funcionalidades
 
----
+- Tres roles (`cliente`, `funcionario`, `admin`) con middleware por grupo de rutas.
+- Reserva pública sin cuenta, con seguimiento del estado de la cita mediante un token (`/reservar/estado/{token}`).
+- Panel del cliente: crear y cancelar sus citas.
+- Agenda del personal: listar, crear y editar citas, exportar a Excel e importar desde Excel con vista previa, revalidación e importación por filas.
+- Catálogo de servicios para el administrador: CRUD, acciones masivas (eliminar y activar o desactivar), importación y exportación con plantilla Excel, y búsqueda MySQL FULLTEXT.
+- Administración de usuarios y roles, y horarios de atención.
+- Dashboard con métricas filtrables por servicio y rango de fechas (Recharts).
+- Reportes PDF asíncronos: un job en cola genera el archivo, la interfaz consulta el estado y la descarga usa una URL firmada que expira. Un comando programado limpia los reportes vencidos cada día.
+- Autenticación con Laravel Fortify: registro, verificación de email, recuperación de contraseña, autenticación en dos pasos con códigos de recuperación y cambio de contraseña obligatorio.
+- Ajustes de perfil, seguridad y apariencia (claro y oscuro).
 
-## Requisitos previos
+## Stack
 
-Antes de empezar necesitas tener instalado:
+| Capa | Tecnología |
+| --- | --- |
+| Backend | PHP ^8.4, Laravel ^13.0, Laravel Fortify ^1.34, Laravel Wayfinder ^0.1.14 |
+| Frontend | Inertia.js ^3.0 (Laravel y `@inertiajs/react`), React ^19.2.0, TypeScript ^5.7.2, Vite ^8.0.0 |
+| Estilos y UI | Tailwind CSS ^4.0.0, Radix UI, lucide-react ^0.475.0, Recharts ^3.8.0 |
+| Datos | MySQL 8.0 (Docker Compose, con phpMyAdmin); SQLite en pruebas |
+| Documentos | barryvdh/laravel-dompdf ^3.1, maatwebsite/excel ^3.1 |
+| Calidad | Pest ^4.6, Laravel Pint ^1.27, ESLint, Prettier, GitHub Actions |
 
-- [PHP 8.2+](https://www.php.net/) (verificar con `php -v`)
-- [Composer](https://getcomposer.org/) — gestor de paquetes PHP
-- [Node.js 20+](https://nodejs.org/) — para el frontend (verificar con `node -v`)
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) — para la base de datos
-- [Laravel Herd](https://herd.laravel.com/) — servidor local
+## Requisitos
 
----
+- PHP 8.4 y Composer.
+- Node.js 22 y npm (la integración continua usa Node 22).
+- Docker, para MySQL y phpMyAdmin.
+- Opcional: Laravel Herd para servir la app en `http://app-salon.test`.
 
-## Instalación paso a paso
-
-### Paso 1 — Clonar el repositorio
-
-```bash
-git clone https://github.com/tu-usuario/app-salon.git
-cd app-salon
-```
-
-### Paso 2 — Instalar dependencias de PHP
+## Puesta en marcha
 
 ```bash
+git clone https://github.com/nicoarbelaez/appsalon.git
+cd appsalon
 composer install
-```
-
-> Esto descarga todas las librerías de Laravel necesarias. Puede tardar unos minutos.
-
-### Paso 3 — Instalar dependencias de JavaScript
-
-```bash
 npm install
-```
-
-> Esto descarga React, Tailwind y demás librerías del frontend.
-
-### Paso 4 — Configurar variables de entorno
-
-```bash
 cp .env.example .env
 php artisan key:generate
+docker compose up -d
 ```
 
-Abre el archivo `.env` y verifica que la configuración de base de datos sea:
+`.env.example` viene configurado con SQLite. Para usar el MySQL de Docker, cambia estas variables en `.env`; la contraseña es el valor de `MYSQL_ROOT_PASSWORD` de `docker-compose.yml`:
 
 ```env
 DB_CONNECTION=mysql
@@ -70,199 +57,85 @@ DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_DATABASE=appsalon
 DB_USERNAME=root
-DB_PASSWORD=
+DB_PASSWORD=<MYSQL_ROOT_PASSWORD de docker-compose.yml>
 ```
 
-> El archivo `.env` contiene las credenciales y configuración del proyecto. **Nunca subas este archivo a GitHub.**
-
-### Paso 5 — Iniciar la base de datos con Docker
-
-```bash
-docker compose up -d
-```
-
-> Esto inicia MySQL en un contenedor Docker. La bandera `-d` lo ejecuta en segundo plano. Espera unos segundos antes de continuar.
-
-Puedes verificar que está corriendo con:
-
-```bash
-docker compose ps
-```
-
-### Paso 6 — Crear las tablas y datos de prueba
+Crea las tablas y los datos de demostración:
 
 ```bash
 php artisan migrate --seed
 ```
 
-> `migrate` crea todas las tablas en la base de datos. `--seed` inserta datos de prueba (usuarios y servicios).
+El seeder crea usuarios de demostración (administrador, funcionario y cliente), servicios y horarios. Revisa `database/seeders/DatabaseSeeder.php` para ver los datos y úsalos solo en desarrollo.
 
-### Paso 7 — Compilar el frontend
-
-Para desarrollo (se recarga automáticamente al guardar cambios):
+Levanta el servidor, la cola y Vite en una sola terminal:
 
 ```bash
-npm run dev
+composer run dev
 ```
 
-Para producción (compilación optimizada):
+Los reportes PDF necesitan el worker de la cola (`queue:listen`), que `composer run dev` ya incluye. phpMyAdmin queda en <http://localhost:8080>.
 
-```bash
-npm run build
+## Scripts
+
+| Comando | Qué hace |
+| --- | --- |
+| `composer run dev` | `php artisan serve`, `queue:listen` y Vite en paralelo |
+| `composer run setup` | Instala dependencias, crea `.env`, genera la clave, migra y compila |
+| `composer test` | Limpia la configuración, corre Pint en modo comprobación y luego Pest |
+| `composer lint` | Formatea PHP con Pint |
+| `composer ci:check` | ESLint, Prettier, `tsc --noEmit` y las pruebas |
+| `npm run dev` / `npm run build` | Vite en desarrollo o compilación de producción |
+| `npm run lint` / `npm run format` | ESLint y Prettier sobre el frontend |
+| `npm run types:check` | Comprobación de tipos con TypeScript |
+| `php artisan pail` | Logs en vivo |
+
+## Estructura
+
+```text
+app/
+  Http/Controllers/        CitaController, ReservaPublicaController, Admin/, Funcionario/, Settings/
+  Http/Middleware/         AdminMiddleware, FuncionarioMiddleware, CheckPasswordChange
+  Reportes/                Actions y DTOs de los reportes PDF
+  Jobs/                    GenerarReportePdfJob
+  Imports/ Exports/        Excel de citas y servicios
+  Models/                  User, Servicio, Cita, CitaServicio, Horario, ReportePdf
+resources/js/
+  pages/                   admin, agenda, auth, citas, reportes, reservar, settings
+  components/ hooks/ layouts/
+routes/                    web.php, settings.php, console.php (limpieza diaria de reportes)
+database/                  migraciones, seeders
+tests/Feature/             Auth, Dashboard, Reportes, Settings
 ```
 
-### Paso 8 — Abrir la aplicación
-
-Si usas Laravel Herd, la aplicación estará disponible en:
-
-```
-http://app-salon.test
-```
-
-Para ver y gestionar la base de datos visualmente:
-
-```
-http://localhost:8080  (phpMyAdmin)
-```
-
----
-
-## Credenciales de prueba
-
-| Rol | Email | Contraseña |
-|-----|-------|-----------|
-| Administrador | admin@appsalon.com | password |
-| Cliente | cliente@appsalon.com | password |
-
----
-
-## Estructura del proyecto
-
-```
-app-salon/
-├── app/
-│   ├── Http/
-│   │   ├── Controllers/       # Lógica de cada sección (Auth, Servicios, Citas, Admin)
-│   │   └── Middleware/        # Filtros de acceso (ej: solo admins)
-│   ├── Models/
-│   │   ├── User.php           # Modelo de usuario (tabla: usuarios)
-│   │   ├── Servicio.php       # Modelo de servicio (tabla: servicios)
-│   │   ├── Cita.php           # Modelo de cita (tabla: citas)
-│   │   └── CitaServicio.php   # Relación cita-servicio (tabla: citasServicios)
-│   └── Actions/Fortify/
-│       └── CreateNewUser.php  # Lógica de registro de usuarios
-├── resources/
-│   └── js/
-│       └── pages/
-│           ├── welcome.tsx    # Página principal pública
-│           ├── dashboard.tsx  # Panel del cliente
-│           ├── auth/          # Login, registro, recuperar contraseña
-│           └── settings/      # Configuración de perfil
-├── routes/
-│   ├── web.php                # Rutas de la aplicación web
-│   └── api.php                # Rutas de la API REST
-├── database/
-│   ├── migrations/            # Definición de tablas
-│   └── seeders/               # Datos de prueba
-└── docker-compose.yml         # Configuración de Docker (MySQL + phpMyAdmin)
-```
-
----
-
-## Base de datos
-
-El sistema usa 4 tablas principales:
-
-| Tabla | Descripción |
-|-------|-------------|
-| `usuarios` | Clientes y administradores del sistema |
-| `servicios` | Catálogo de servicios con precio y duración |
-| `citas` | Reservas por fecha y hora |
-| `citasServicios` | Qué servicios incluye cada cita |
-
----
-
-## Funcionalidades
-
-### Para clientes
-- Registro y login con confirmación por email
-- Ver catálogo de servicios disponibles
-- Reservar citas eligiendo fecha, hora y servicios
-- Ver y cancelar sus propias citas
-
-### Para administradores
-- Gestionar servicios (crear, editar, eliminar)
-- Ver todas las citas del día
-- Gestionar usuarios y roles
-- Dashboard con estadísticas
-- Reportes y exportación de datos (semana 16)
-
----
+Arquitectura con diagramas: [docs/architecture.md](./docs/architecture.md).
 
 ## Rutas principales
 
 | Ruta | Acceso | Descripción |
-|------|--------|-------------|
-| `/` | Público | Página de inicio con servicios |
-| `/register` | Público | Registro de nuevo cliente |
-| `/login` | Público | Inicio de sesión |
-| `/dashboard` | Cliente autenticado | Panel personal |
-| `/admin/*` | Solo administradores | Panel de administración |
-| `/api/*` | Token Sanctum | API REST |
+| --- | --- | --- |
+| `/` | Público | Inicio con servicios |
+| `/reservar`, `/reservar/estado/{token}` | Público | Reserva sin cuenta y seguimiento |
+| `/register`, `/login` | Público | Registro e inicio de sesión |
+| `/dashboard`, `/citas` | Autenticado | Panel y citas propias |
+| `/funcionario/*` | Funcionario y admin | Agenda y reportes |
+| `/admin/*` | Admin | Servicios, usuarios y horarios |
 
----
+## Pruebas y CI
 
-## Comandos útiles
+Hay pruebas de funcionalidad con Pest para autenticación (incluida la autenticación en dos pasos), dashboard, reportes PDF y ajustes. Los workflows `tests.yml` (PHP 8.4, Node 22) y `lint.yml` corren en GitHub Actions. Las pruebas usan SQLite en memoria.
 
 ```bash
-# Ver logs de la aplicación
-php artisan pail
-
-# Limpiar caché
-php artisan cache:clear
-php artisan config:clear
-
-# Ejecutar pruebas
 php artisan test
-
-# Ejecutar una prueba específica
 php artisan test --filter=NombreDeLaPrueba
-
-# Detener Docker
-docker compose down
-
-# Ver estado de migraciones
-php artisan migrate:status
 ```
 
----
+## Solución de problemas
 
-## Solución de problemas comunes
+- **"No application encryption key"**: ejecuta `php artisan key:generate`.
+- **Error de conexión a la base de datos**: comprueba que Docker esté corriendo (`docker compose ps`) y las credenciales en `.env`.
+- **`app-salon.test` no carga**: confirma que Laravel Herd está corriendo y el sitio registrado.
+- **El frontend no refleja los cambios**: mantén `npm run dev` corriendo (o usa `composer run dev`).
+- **El reporte PDF se queda en "procesando"**: falta el worker de la cola; inicia `php artisan queue:listen`.
 
-**Error: "No application encryption key"**
-```bash
-php artisan key:generate
-```
-
-**Error de conexión a base de datos**
-- Verifica que Docker esté corriendo: `docker compose ps`
-- Verifica las credenciales en `.env`
-
-**La página no carga en app-salon.test**
-- Asegúrate de que Laravel Herd esté corriendo y el sitio esté registrado
-
-**Cambios en el frontend no se ven**
-- Asegúrate de tener `npm run dev` corriendo en otra terminal
-
----
-
-## Cronograma del proyecto
-
-| Semana | Meta |
-|--------|------|
-| 7-8 | Base de datos y conexión PHP-MySQL |
-| 9-10 | Sistema de usuarios, login/register, roles |
-| **11** | **Entrega intermedia** — Auth + CRUD servicios + UI básica |
-| 12-14 | Sistema de citas completo + API + reportes |
-| 15 | Revisión, optimización y documentación |
-| **16** | **Entrega final** — Sistema completo + presentación |
+Comandos útiles: `php artisan cache:clear`, `php artisan config:clear`, `php artisan migrate:status`, `docker compose down`.
